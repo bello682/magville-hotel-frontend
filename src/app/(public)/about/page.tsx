@@ -194,6 +194,8 @@ export default function AboutPage() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         room={{
+          id: "executive-ocean-suite",
+          roomNumber: "N/A",
           name: "Executive Ocean Suite",
           category: "Luxury Room",
           price: 75000,
