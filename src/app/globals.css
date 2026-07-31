@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+:root {
+  /* 🎨 EDIT THESE 4 CORE VARIABLES ANYTIME TO REBRAND THE HOTEL PLATFORM */
+  --bg-main-val: #ffffff; /* Pure White */
+  --bg-dark-val: #0d0d0d; /* Luxury Obsidian Black */
+  --accent-val: #c5a059; /* Luxury Gold / Primary Brand Accent */
+  --muted-val: #6b7280; /* Soft Muted Grey */
+}
+
+/* Enable class-based dark mode for next-themes */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  /* Register custom Tailwind v4 theme colors */
+  --color-main: var(--bg-main-val);
+  --color-dark: var(--bg-dark-val);
+  --color-accent: var(--accent-val);
+  --color-muted: var(--muted-val);
+
+  --font-serif: "Playfair Display", Georgia, serif;
+  --font-sans: var(--font-geist-sans), Arial, sans-serif;
+}
+
+body {
+  /* background: var(--color-dark);
+  color: var(--color-main); */
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
