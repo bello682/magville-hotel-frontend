@@ -4,17 +4,13 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Tilt from "react-parallax-tilt";
 import Navbar from "@/components/Navbar";
-import ReservationModal from "@/components/ReservationModal";
 import {
   Utensils,
   Waves,
   Dumbbell,
   Sparkles,
-  ShieldCheck,
   Wifi,
   Car,
-  Coffee,
-  Tv,
   Clock,
   Check,
 } from "lucide-react";
@@ -133,7 +129,6 @@ const CATEGORIES = ["All", "Leisure", "Dining", "Wellness", "Services"];
 
 export default function AmenitiesPage() {
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const filteredAmenities =
     selectedCategory === "All"

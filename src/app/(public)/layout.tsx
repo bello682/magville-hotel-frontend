@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { Suspense } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ReservationModal from "@/components/ReservationModal";
@@ -20,11 +20,13 @@ function PublicLayoutInner({ children }: { children: React.ReactNode }) {
       <Footer />
 
       {/* Global Booking Modal */}
-      <ReservationModal
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        room={selectedRoom}
-      />
+      <Suspense fallback={null}>
+        <ReservationModal
+          isOpen={isModalOpen}
+          onClose={closeModal}
+          room={selectedRoom}
+        />
+      </Suspense>
     </div>
   );
 }

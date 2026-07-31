@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import Tilt from "react-parallax-tilt";
 import Navbar from "@/components/Navbar";
-import ReservationModal from "@/components/ReservationModal";
 import {
   MapPin,
   Phone,

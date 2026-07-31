@@ -1,22 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import Tilt from "react-parallax-tilt";
 import Navbar from "@/components/Navbar";
-import ReservationModal from "@/components/ReservationModal";
-import {
-  ShieldCheck,
-  Award,
-  Compass,
-  Sparkles,
-  Users,
-  HeartHandshake,
-} from "lucide-react";
+import { ShieldCheck, Award, Compass, HeartHandshake } from "lucide-react";
 
 export default function AboutPage() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
   const pillars = [
     {
       icon: ShieldCheck,
