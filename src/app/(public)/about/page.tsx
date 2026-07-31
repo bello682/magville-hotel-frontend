@@ -47,7 +47,7 @@ export default function AboutPage() {
   return (
     <main className="min-h-screen bg-dark text-main overflow-x-hidden pt-28">
       {/* 👑 Global Navbar */}
-      <Navbar onBookClick={() => setIsModalOpen(true)} />
+      <Navbar />
 
       {/* 🏛️ 1. ABOUT HERO BANNER */}
       <section className="relative py-20 px-4 md:px-12 border-b border-white/10 overflow-hidden">
@@ -188,21 +188,6 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
-
-      {/* 📝 Reservation Modal */}
-      <ReservationModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        room={{
-          id: "executive-ocean-suite",
-          roomNumber: "N/A",
-          name: "Executive Ocean Suite",
-          category: "Luxury Room",
-          price: 75000,
-          image:
-            "https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=800",
-        }}
-      />
     </main>
   );
 }

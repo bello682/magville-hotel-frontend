@@ -3,12 +3,9 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Search } from "lucide-react";
+import Link from "next/link";
 
-interface NavbarProps {
-  onBookClick?: () => void;
-}
-
-export default function Navbar({ onBookClick }: NavbarProps) {
+export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleMenu = () => setIsOpen((prev) => !prev);
@@ -42,35 +39,38 @@ export default function Navbar({ onBookClick }: NavbarProps) {
           {/* 🖥️ Desktop Navigation Links (Hidden on Mobile/Tablet) */}
           <nav className="hidden lg:flex items-center space-x-8 text-xs tracking-[0.2em] uppercase font-light text-main">
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.label}
                 href={link.href}
                 className="hover:text-accent transition-colors duration-300"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </nav>
 
           {/* 🔘 Right Action Buttons + Mobile Hamburger Toggle */}
           <div className="flex items-center space-x-3 sm:space-x-4">
             {/* Secondary CTA: Track Booking Icon/Button for Quick Desktop Access */}
-            <a
+            <Link
               href="/track"
               className="hidden xl:flex items-center space-x-1.5 text-xs text-main hover:text-accent border border-white/20 hover:border-accent/50 px-3.5 py-2 transition-all uppercase tracking-widest"
             >
               <Search className="w-3.5 h-3.5 text-accent" />
               <span>Track Reservation</span>
-            </a>
+            </Link>
 
             {/* Primary CTA: Book Online */}
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={onBookClick}
-              className="hidden sm:block bg-accent text-dark px-6 py-2.5 font-semibold text-xs tracking-widest uppercase transition-all shadow-lg shadow-accent/20"
             >
-              Book Online
+              <Link
+                href="/rooms"
+                className="hidden sm:block bg-accent text-dark px-6 py-2.5 font-semibold text-xs tracking-widest uppercase transition-all shadow-lg shadow-accent/20"
+              >
+                Book Online
+              </Link>
             </motion.button>
 
             {/* 🍔 Hamburger Button (Visible on Mobile & Tablet < 1024px) */}
@@ -101,35 +101,33 @@ export default function Navbar({ onBookClick }: NavbarProps) {
           >
             <nav className="flex flex-col space-y-5 text-center">
               {navLinks.map((link) => (
-                <a
+                <Link
                   key={link.label}
                   href={link.href}
                   onClick={() => setIsOpen(false)}
                   className="text-lg font-serif tracking-widest uppercase text-main hover:text-accent transition-colors py-2 border-b border-white/5"
                 >
                   {link.label}
-                </a>
+                </Link>
               ))}
             </nav>
 
             <div className="pt-6 text-center space-y-3">
-              <button
-                onClick={() => {
-                  setIsOpen(false);
-                  if (onBookClick) onBookClick();
-                }}
+              <Link
+                href="/rooms"
+                onClick={() => setIsOpen(false)}
                 className="w-full bg-accent text-dark py-3.5 font-semibold text-xs tracking-widest uppercase shadow-lg shadow-accent/20"
               >
                 Book Online Now
-              </button>
+              </Link>
 
-              <a
+              <Link
                 href="/track"
                 onClick={() => setIsOpen(false)}
                 className="block w-full border border-white/20 text-main hover:border-accent hover:text-accent py-3 font-semibold text-xs tracking-widest uppercase transition-all"
               >
                 Track Existing Reservation
-              </a>
+              </Link>
 
               <p className="text-[10px] text-muted uppercase tracking-widest pt-2">
                 Magville Hotel, Epe • Reservation Support

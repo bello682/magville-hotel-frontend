@@ -13,10 +13,8 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-dark w-full overflow-x-hidden">
       {/* Navbar */}
-      <Navbar onBookClick={() => openModal()} />
+      <Navbar />
 
-      {/* 1. Hero Section */}
-      {/* <Hero onBookClick={() => openModal()} /> */}
       {/* 1. Hero Section - Forward room / search data to openModal */}
       <Hero onBookClick={(bookingData) => openModal(bookingData)} />
 

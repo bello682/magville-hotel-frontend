@@ -12,7 +12,7 @@ function PublicLayoutInner({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col justify-between bg-dark">
       {/* Navbar receives trigger from Context */}
-      <Navbar onBookClick={() => openModal()} />
+      <Navbar />
 
       <main className="flex-1">{children}</main>
 

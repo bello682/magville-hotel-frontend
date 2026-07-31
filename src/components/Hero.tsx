@@ -50,7 +50,8 @@ const HERO_SLIDES = [
     tagline: "Fine Dining & World-Class Spa",
     title: "Indulge Your Senses\nIn Total Serenity",
     ctaText: "Book Your Experience",
-    type: "modal",
+    type: "link",
+    href: "/rooms",
     image:
       "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1920&q=80",
   },

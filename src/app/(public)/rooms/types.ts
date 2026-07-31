@@ -8,7 +8,7 @@ export interface RoomCategory {
 export interface Room {
   id: string;
   _id?: string; // Legacy compatibility
-  roomNumber: string;
+  roomNumber?: string;
   name?: string;
   title?: string;
   categoryId?: string;

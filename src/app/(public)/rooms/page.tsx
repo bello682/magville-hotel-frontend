@@ -61,9 +61,7 @@ export default function RoomsPage() {
   return (
     <main className="min-h-screen bg-dark text-main overflow-x-hidden pt-28">
       {/* 👑 Global Navigation Bar */}
-      <Navbar
-        onBookClick={() => rooms.length > 0 && handleOpenBooking(rooms[0])}
-      />
+      <Navbar />
 
       {/* 🏛️ 1. HERO BANNER */}
       <section className="relative py-20 px-4 md:px-12 border-b border-white/10 overflow-hidden text-center">
@@ -190,13 +188,6 @@ export default function RoomsPage() {
             setSelectedRoomForBooking(null); // Resets room selection
           }}
           room={selectedRoomForBooking}
-          // room={{
-          //   _id: getRoomId(selectedRoomForBooking),
-          //   name: getRoomName(selectedRoomForBooking),
-          //   category: getRoomCategory(selectedRoomForBooking),
-          //   price: getRoomPrice(selectedRoomForBooking),
-          //   image: getPrimaryImage(selectedRoomForBooking),
-          // }}
         />
       )}
     </main>

@@ -143,7 +143,7 @@ export default function AmenitiesPage() {
   return (
     <main className="min-h-screen bg-dark text-main overflow-x-hidden pt-28">
       {/* 👑 Global Navigation Bar */}
-      <Navbar onBookClick={() => setIsModalOpen(true)} />
+      <Navbar />
 
       {/* 🏛️ 1. HERO BANNER */}
       <section className="relative py-20 px-4 md:px-12 border-b border-white/10 overflow-hidden text-center">
@@ -271,19 +271,6 @@ export default function AmenitiesPage() {
           </AnimatePresence>
         </motion.div>
       </section>
-
-      {/* 📝 Reservation Modal */}
-      <ReservationModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        room={{
-          name: "Executive Ocean Suite",
-          category: "Luxury Room",
-          price: 75000,
-          image:
-            "https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=800",
-        }}
-      />
     </main>
   );
 }
