@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
+import { Suspense } from "react";
 import {
   Search,
   Loader2,
@@ -21,7 +22,7 @@ import {
 import { trackReservation } from "../../../store/redux/actions/publicActions";
 import { RootState } from "../../../store/store";
 
-export default function TrackBookingPage() {
+function TrackBookingPage() {
   const dispatch = useDispatch<any>();
   const [reference, setReference] = useState("");
 
@@ -294,5 +295,13 @@ export default function TrackBookingPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function TrackPage() {
+  return (
+    <Suspense fallback={null}>
+      <TrackBookingPage />
+    </Suspense>
   );
 }

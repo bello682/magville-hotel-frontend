@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "../utils/hooks";
 import { motion, AnimatePresence } from "framer-motion";
 import Tilt from "react-parallax-tilt";
+import { Suspense } from "react";
 import {
   Calendar,
   Users,
@@ -256,15 +257,18 @@ export default function Hero({ onBookClick }: HeroProps) {
                     if (checkIn && checkOut) {
                       handleHeroSearch(new Event("submit") as any);
                     } else {
-                      setIsReservationModalOpen(true);
-                      if (onBookClick) {
-                        onBookClick({
-                          checkIn,
-                          checkOut,
-                          category: selectedCategory,
-                          roomId: "",
-                        });
-                      }
+                      setFormError(
+                        "Please select Check-In and Check-Out dates first.",
+                      );
+                      // setIsReservationModalOpen(true);
+                      // if (onBookClick) {
+                      //   onBookClick({
+                      //     checkIn,
+                      //     checkOut,
+                      //     category: selectedCategory,
+                      //     roomId: "",
+                      //   });
+                      // }
                     }
                   }}
                   className="border border-accent text-accent hover:bg-accent hover:text-dark px-8 py-3.5 tracking-widest uppercase text-xs font-semibold transition-all duration-300 shadow-lg"
@@ -422,11 +426,13 @@ export default function Hero({ onBookClick }: HeroProps) {
       />
 
       {/* 🟢 Reservation Modal with populated payload */}
-      <ReservationModal
-        isOpen={isReservationModalOpen}
-        onClose={() => setIsReservationModalOpen(false)}
-        room={normalizedHeroRoom}
-      />
+      <Suspense fallback={null}>
+        <ReservationModal
+          isOpen={isReservationModalOpen}
+          onClose={() => setIsReservationModalOpen(false)}
+          room={normalizedHeroRoom}
+        />
+      </Suspense>
     </section>
   );
 }

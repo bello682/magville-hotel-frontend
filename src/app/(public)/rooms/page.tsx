@@ -11,6 +11,7 @@ import {
   fetchRoomCategories,
 } from "../../../store/redux/actions/publicActions";
 import { Loader2 } from "lucide-react";
+import { Suspense } from "react";
 
 import {
   Room,
@@ -181,14 +182,16 @@ export default function RoomsPage() {
 
       {/* 📝 RESERVATION MODAL */}
       {selectedRoomForBooking && (
-        <ReservationModal
-          isOpen={isBookingModalOpen}
-          onClose={() => {
-            setIsBookingModalOpen(false);
-            setSelectedRoomForBooking(null); // Resets room selection
-          }}
-          room={selectedRoomForBooking}
-        />
+        <Suspense fallback={null}>
+          <ReservationModal
+            isOpen={isBookingModalOpen}
+            onClose={() => {
+              setIsBookingModalOpen(false);
+              setSelectedRoomForBooking(null); // Resets room selection
+            }}
+            room={selectedRoomForBooking}
+          />
+        </Suspense>
       )}
     </main>
   );
