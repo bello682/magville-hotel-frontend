@@ -2,8 +2,8 @@
 "use client";
 
 import { useState } from "react";
-import { X, Users, BedDouble, ImageOff } from "lucide-react";
-import { Room } from "@/app/(admin)/types/room";
+import { X, Users, BedDouble, ImageOff, Play } from "lucide-react";
+import { Room, isVideoUrl } from "@/app/(admin)/types/room";
 import RoomStatusBadge from "./RoomStatusBadge";
 
 interface RoomDetailModalProps {
@@ -17,9 +17,12 @@ export default function RoomDetailModal({
   onClose,
   room,
 }: RoomDetailModalProps) {
-  const [activeImage, setActiveImage] = useState(0);
+  const [activeMedia, setActiveMedia] = useState(0);
 
   if (!isOpen || !room) return null;
+
+  const currentUrl = room.images[activeMedia];
+  const currentIsVideo = isVideoUrl(currentUrl);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
@@ -50,32 +53,58 @@ export default function RoomDetailModal({
           <div>
             {room.images.length > 0 ? (
               <>
-                <div className="w-full h-64 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800">
-                  <img
-                    src={room.images[activeImage]}
-                    alt={`Room ${room.roomNumber}`}
-                    className="w-full h-full object-cover"
-                  />
+                <div className="w-full h-64 rounded-lg overflow-hidden bg-black flex items-center justify-center">
+                  {currentIsVideo ? (
+                    <video
+                      key={currentUrl} // forces reload when switching between media
+                      src={currentUrl}
+                      controls
+                      className="w-full h-full object-contain"
+                    />
+                  ) : (
+                    <img
+                      src={currentUrl}
+                      alt={`Room ${room.roomNumber}`}
+                      className="w-full h-full object-cover"
+                    />
+                  )}
                 </div>
+
                 {room.images.length > 1 && (
-                  <div className="flex gap-2 mt-2 overflow-x-auto">
-                    {room.images.map((img, idx) => (
-                      <button
-                        key={img}
-                        onClick={() => setActiveImage(idx)}
-                        className={`w-16 h-16 rounded-lg overflow-hidden shrink-0 border-2 transition ${
-                          idx === activeImage
-                            ? "border-amber-500"
-                            : "border-transparent opacity-60 hover:opacity-100"
-                        }`}
-                      >
-                        <img
-                          src={img}
-                          alt=""
-                          className="w-full h-full object-cover"
-                        />
-                      </button>
-                    ))}
+                  <div className="flex gap-2 mt-2 overflow-x-auto pb-1">
+                    {room.images.map((url, idx) => {
+                      const isVideo = isVideoUrl(url);
+                      return (
+                        <button
+                          key={url}
+                          onClick={() => setActiveMedia(idx)}
+                          className={`relative w-16 h-16 rounded-lg overflow-hidden shrink-0 border-2 transition ${
+                            idx === activeMedia
+                              ? "border-amber-500"
+                              : "border-transparent opacity-60 hover:opacity-100"
+                          }`}
+                        >
+                          {isVideo ? (
+                            <>
+                              <video
+                                src={url}
+                                className="w-full h-full object-cover"
+                                muted
+                              />
+                              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                <Play className="w-4 h-4 text-white fill-white" />
+                              </div>
+                            </>
+                          ) : (
+                            <img
+                              src={url}
+                              alt=""
+                              className="w-full h-full object-cover"
+                            />
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
               </>

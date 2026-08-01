@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { ADMIN_NAV_ITEMS } from "../../confiq/adminNav";
+import { useAdminUser } from "../../hooks/useAdminUser";
 
 interface AdminSidebarProps {
   isOpen: boolean;
@@ -12,6 +13,11 @@ interface AdminSidebarProps {
 
 export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
   const pathname = usePathname();
+  const currentUser = useAdminUser();
+
+  const visibleNavItems = ADMIN_NAV_ITEMS.filter((item) =>
+    currentUser ? item.roles.includes(currentUser.role as any) : false,
+  );
 
   const handleLogout = () => {
     localStorage.removeItem("adminToken");
@@ -29,7 +35,7 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
 
       <aside
         className={`
-          fixed lg:static inset-y-0 left-0 z-40 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 
+          fixed lg:static inset-y-0 left-0 z-30 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 
           flex flex-col justify-between transition-colors duration-300 ease-in-out
           ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         `}
@@ -40,7 +46,7 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
           </p>
 
           <nav className="space-y-1.5">
-            {ADMIN_NAV_ITEMS.map((item) => {
+            {visibleNavItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
 

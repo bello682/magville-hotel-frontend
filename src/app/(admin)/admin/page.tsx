@@ -1,61 +1,23 @@
 "use client";
 
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Loader2, AlertCircle } from "lucide-react";
 import KpiCards from "../components/admin/overview/KpiCards";
 import RoomStatusChart from "../components/admin/overview/RoomStatusChart";
 import FrontDeskFeedTable from "../components/admin/overview/FrontDeskFeedTable";
-import { DashboardOverviewResponse } from "../types/dashboard";
-
-// 🔧 Placeholder data matching the exact shape of GET /api/v1/dashboard/overview
-// Replace this with a real fetch call once API wiring begins.
-const MOCK_DASHBOARD_DATA: DashboardOverviewResponse = {
-  kpis: {
-    occupancyRate: "68.5%",
-    activeGuests: 24,
-    todayRevenue: 340000,
-    monthRevenue: 4820000,
-  },
-  roomStatus: {
-    total: 40,
-    occupied: 24,
-    available: 14,
-    maintenance: 2,
-  },
-  frontDeskFeed: {
-    arrivalsTodayCount: 2,
-    expectedArrivals: [
-      {
-        id: "1",
-        bookingRef: "MAG-58201",
-        checkInDate: new Date().toISOString(),
-        checkOutDate: new Date().toISOString(),
-        room: { roomNumber: "204" },
-        guest: { fullName: "Chief Alexander Cole", phone: "+234 800 000 0000" },
-      },
-      {
-        id: "2",
-        bookingRef: "MAG-58202",
-        checkInDate: new Date().toISOString(),
-        checkOutDate: new Date().toISOString(),
-        room: { roomNumber: "112" },
-        guest: { fullName: "Amara Johnson", phone: "+234 801 111 2222" },
-      },
-    ],
-    departuresTodayCount: 1,
-    expectedDepartures: [
-      {
-        id: "3",
-        bookingRef: "MAG-58150",
-        checkInDate: new Date().toISOString(),
-        checkOutDate: new Date().toISOString(),
-        room: { roomNumber: "301" },
-        guest: { fullName: "Michael Adeyemi", phone: "+234 802 333 4444" },
-      },
-    ],
-  },
-};
+import { fetchDashboardOverview } from "../../../store/redux/actions/adminAction/dashboardActions";
+import { RootState, AppDispatch } from "@/store/store";
 
 export default function AdminDashboardPage() {
-  const data = MOCK_DASHBOARD_DATA;
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading, data, error } = useSelector(
+    (state: RootState) => state.dashboard,
+  );
+
+  useEffect(() => {
+    dispatch(fetchDashboardOverview());
+  }, [dispatch]);
 
   return (
     <div className="space-y-8 pb-10">
@@ -70,27 +32,47 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      <KpiCards kpis={data.kpis} />
+      {loading && !data && (
+        <div className="flex flex-col items-center justify-center py-20 gap-3">
+          <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
+          <p className="text-xs uppercase tracking-widest text-slate-400 dark:text-slate-500">
+            Loading dashboard metrics...
+          </p>
+        </div>
+      )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1">
-          <RoomStatusChart roomStatus={data.roomStatus} />
+      {error && (
+        <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 text-sm rounded-xl flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 shrink-0" />
+          {error}
         </div>
-        <div className="lg:col-span-2 grid grid-cols-1 gap-6">
-          <FrontDeskFeedTable
-            title="Arrivals Today"
-            entries={data.frontDeskFeed.expectedArrivals}
-            dateField="checkInDate"
-            emptyLabel="No arrivals scheduled for today."
-          />
-          <FrontDeskFeedTable
-            title="Departures Today"
-            entries={data.frontDeskFeed.expectedDepartures}
-            dateField="checkOutDate"
-            emptyLabel="No departures scheduled for today."
-          />
-        </div>
-      </div>
+      )}
+
+      {data && (
+        <>
+          <KpiCards kpis={data.kpis} />
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-1">
+              <RoomStatusChart roomStatus={data.roomStatus} />
+            </div>
+            <div className="lg:col-span-2 grid grid-cols-1 gap-6">
+              <FrontDeskFeedTable
+                title="Arrivals Today"
+                entries={data.frontDeskFeed.expectedArrivals}
+                dateField="checkInDate"
+                emptyLabel="No arrivals scheduled for today."
+              />
+              <FrontDeskFeedTable
+                title="Departures Today"
+                entries={data.frontDeskFeed.expectedDepartures}
+                dateField="checkOutDate"
+                emptyLabel="No departures scheduled for today."
+              />
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

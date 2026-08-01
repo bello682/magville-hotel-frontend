@@ -1,250 +1,138 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import BookingsFilterBar from "./BookingsFilterBar";
-import BookingsTable from "./BookingsTable";
-import BookingDetailModal from "./BookingDetailModal";
-import NewBookingModal, { NewBookingFormValues } from "./NewBookingModal";
-import RejectReasonModal from "./RejectReasonModal";
-import ConfirmActionModal from "./ConfirmActionModal";
-import { Booking, BookingStatus } from "../../types/booking";
+import { useEffect, useMemo } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import { Loader2, AlertCircle } from "lucide-react";
+import BookingsFilterBar from "../bookings/BookingsFilterBar";
+import BookingsTable from "../bookings/BookingsTable";
+import BookingDetailModal from "../bookings/BookingDetailModal";
+import { Suspense } from "react";
+import NewBookingModal, {
+  NewBookingFormValues,
+} from "../bookings/NewBookingModal";
+import RejectReasonModal from "../bookings/RejectReasonModal";
+import ConfirmActionModal from "../bookings/ConfirmActionModal";
+import { BookingStatus } from "../../types/booking";
+import { RootState, AppDispatch } from "@/store/store";
+import {
+  fetchAllBookings,
+  fetchBookingById,
+  clearBookingDetail,
+  createBookingAdmin,
+  resetBookingCreate,
+  updateBookingStatus,
+  checkInBookingAdmin,
+  checkOutBookingAdmin,
+  fetchRoomsForBookingLookup,
+} from "@/store/redux/actions/adminAction/bookingActions";
+import { useState } from "react";
 
-// 🔧 Mock data matching GET /api/v1/bookings response shape
-const MOCK_BOOKINGS: Booking[] = [
-  {
-    id: "1",
-    bookingRef: "MAG-58201",
-    status: "PENDING",
-    guestName: "Chief Alexander Cole",
-    guestEmail: "alexander@email.com",
-    guestPhone: "+234 800 000 0000",
-    checkInDate: new Date().toISOString(),
-    checkOutDate: new Date(Date.now() + 3 * 86400000).toISOString(),
-    notes: "Requested a quiet floor, away from the elevator.",
-    totalAmount: 165000,
-    room: {
-      id: "r1",
-      roomNumber: "204",
-      pricePerNight: 55000,
-      category: { id: "c1", name: "Executive Suite" },
-    },
-    guest: {
-      id: "g1",
-      fullName: "Chief Alexander Cole",
-      email: "alexander@email.com",
-      phone: "+234 800 000 0000",
-      idType: "Passport",
-      idNumber: "A12345678",
-    },
-    payments: [],
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "2",
-    bookingRef: "MAG-58150",
-    status: "APPROVED",
-    guestName: "Amara Johnson",
-    guestEmail: "amara@email.com",
-    guestPhone: "+234 801 111 2222",
-    checkInDate: new Date().toISOString(),
-    checkOutDate: new Date(Date.now() + 2 * 86400000).toISOString(),
-    notes: null,
-    totalAmount: 110000,
-    room: {
-      id: "r2",
-      roomNumber: "112",
-      pricePerNight: 55000,
-      category: { id: "c1", name: "Standard Deluxe" },
-    },
-    guest: {
-      id: "g2",
-      fullName: "Amara Johnson",
-      email: "amara@email.com",
-      phone: "+234 801 111 2222",
-    },
-    payments: [
-      {
-        id: "p1",
-        amount: 55000,
-        method: "BANK_TRANSFER",
-        status: "PAID",
-        createdAt: new Date().toISOString(),
-      },
-    ],
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "3",
-    bookingRef: "MAG-58090",
-    status: "CHECKED_IN",
-    guestName: "Michael Adeyemi",
-    guestEmail: "michael@email.com",
-    guestPhone: "+234 802 333 4444",
-    checkInDate: new Date(Date.now() - 86400000).toISOString(),
-    checkOutDate: new Date(Date.now() + 86400000).toISOString(),
-    notes: null,
-    totalAmount: 110000,
-    room: {
-      id: "r3",
-      roomNumber: "301",
-      pricePerNight: 55000,
-      category: { id: "c2", name: "Ocean View" },
-    },
-    guest: {
-      id: "g3",
-      fullName: "Michael Adeyemi",
-      email: "michael@email.com",
-      phone: "+234 802 333 4444",
-    },
-    payments: [
-      {
-        id: "p2",
-        amount: 110000,
-        method: "CASH",
-        status: "PAID",
-        createdAt: new Date().toISOString(),
-      },
-    ],
-    createdAt: new Date().toISOString(),
-  },
-];
+function BookingsPageContent() {
+  const dispatch = useDispatch<AppDispatch>();
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
-const MOCK_ROOMS = [
-  {
-    id: "r1",
-    roomNumber: "204",
-    category: { id: "c1", name: "Executive Suite" },
-  },
-  {
-    id: "r2",
-    roomNumber: "112",
-    category: { id: "c1", name: "Standard Deluxe" },
-  },
-  { id: "r4", roomNumber: "405", category: { id: "c2", name: "Ocean View" } },
-];
+  const {
+    list: bookings,
+    listLoading,
+    listError,
+    detail: detailBooking,
+    createLoading,
+    createSuccess,
+    createError,
+    actionLoadingId,
+    actionError,
+  } = useSelector((state: RootState) => state.adminBookings);
 
-export default function BookingsPage() {
-  const [bookings, setBookings] = useState<Booking[]>(MOCK_BOOKINGS);
+  const { rooms } = useSelector((state: RootState) => state.roomLookup);
+
   const [search, setSearch] = useState("");
+  const initialStatus =
+    (searchParams.get("status") as BookingStatus | null) || "ALL";
   const [statusFilter, setStatusFilter] = useState<BookingStatus | "ALL">(
-    "ALL",
+    initialStatus,
   );
 
-  const [detailBooking, setDetailBooking] = useState<Booking | null>(null);
-  const [rejectBooking, setRejectBooking] = useState<Booking | null>(null);
+  const [detailBookingId, setDetailBookingId] = useState<string | null>(null);
+  const [rejectBookingId, setRejectBookingId] = useState<string | null>(null);
   const [confirmAction, setConfirmAction] = useState<{
-    booking: Booking;
+    bookingId: string;
+    bookingRef: string;
+    guestName: string;
     type: "approve" | "checkIn" | "checkOut";
   } | null>(null);
   const [isNewBookingOpen, setIsNewBookingOpen] = useState(false);
-  const [actionLoading, setActionLoading] = useState(false);
+
+  // Initial load
+  useEffect(() => {
+    dispatch(fetchAllBookings());
+    dispatch(fetchRoomsForBookingLookup());
+  }, [dispatch]);
+
+  // Re-fetch when status filter changes (server-side filtering)
+  useEffect(() => {
+    dispatch(
+      fetchAllBookings(
+        statusFilter !== "ALL" ? { status: statusFilter } : undefined,
+      ),
+    );
+  }, [statusFilter, dispatch]);
+
+  // Keep URL in sync when filter changes via the UI
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (statusFilter !== "ALL") params.set("status", statusFilter);
+    router.replace(`/admin/bookings${params.toString() ? `?${params}` : ""}`);
+  }, [statusFilter]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Fetch full detail when a booking is opened
+  useEffect(() => {
+    if (detailBookingId) {
+      dispatch(fetchBookingById(detailBookingId));
+    } else {
+      dispatch(clearBookingDetail());
+    }
+  }, [detailBookingId, dispatch]);
+
+  // Close New Booking modal on successful create
+  useEffect(() => {
+    if (createSuccess) {
+      setIsNewBookingOpen(false);
+      dispatch(resetBookingCreate());
+    }
+  }, [createSuccess, dispatch]);
 
   const filteredBookings = useMemo(() => {
     return bookings.filter((b) => {
-      const matchesStatus = statusFilter === "ALL" || b.status === statusFilter;
       const matchesSearch =
         search.trim() === "" ||
         b.guestName.toLowerCase().includes(search.toLowerCase()) ||
         b.bookingRef.toLowerCase().includes(search.toLowerCase());
-      return matchesStatus && matchesSearch;
+      return matchesSearch;
     });
-  }, [bookings, search, statusFilter]);
+  }, [bookings, search]);
 
-  // 🔧 These handlers simulate API calls — replace body with real fetch later
-  const updateBookingStatus = (
-    id: string,
-    status: BookingStatus,
-    rejectionReason?: string,
-  ) => {
-    setBookings((prev) =>
-      prev.map((b) =>
-        b.id === id
-          ? {
-              ...b,
-              status,
-              rejectionReason: rejectionReason ?? b.rejectionReason,
-            }
-          : b,
-      ),
-    );
-  };
-
-  const handleConfirmApprove = () => {
-    if (!confirmAction) return;
-    setActionLoading(true);
-    setTimeout(() => {
-      updateBookingStatus(confirmAction.booking.id, "APPROVED");
-      setActionLoading(false);
-      setConfirmAction(null);
-    }, 600);
-  };
-
-  const handleConfirmCheckIn = () => {
-    if (!confirmAction) return;
-    setActionLoading(true);
-    setTimeout(() => {
-      updateBookingStatus(confirmAction.booking.id, "CHECKED_IN");
-      setActionLoading(false);
-      setConfirmAction(null);
-    }, 600);
-  };
-
-  const handleConfirmCheckOut = () => {
-    if (!confirmAction) return;
-    setActionLoading(true);
-    setTimeout(() => {
-      updateBookingStatus(confirmAction.booking.id, "CHECKED_OUT");
-      setActionLoading(false);
-      setConfirmAction(null);
-    }, 600);
+  const handleCreateBooking = (values: NewBookingFormValues) => {
+    dispatch(createBookingAdmin(values));
   };
 
   const handleReject = (reason: string) => {
-    if (!rejectBooking) return;
-    setActionLoading(true);
-    setTimeout(() => {
-      updateBookingStatus(rejectBooking.id, "REJECTED", reason);
-      setActionLoading(false);
-      setRejectBooking(null);
-    }, 600);
+    if (!rejectBookingId) return;
+    dispatch(updateBookingStatus(rejectBookingId, "REJECTED", reason));
+    setRejectBookingId(null);
   };
 
-  const handleCreateBooking = (values: NewBookingFormValues) => {
-    setActionLoading(true);
-    setTimeout(() => {
-      const room = MOCK_ROOMS.find((r) => r.id === values.roomId);
-      const newBooking: Booking = {
-        id: String(Date.now()),
-        bookingRef: `MAG-${Math.floor(100000 + Math.random() * 900000)}`,
-        status: values.isDirectCheckIn ? "CHECKED_IN" : "PENDING",
-        guestName: values.guestName,
-        guestEmail: values.guestEmail,
-        guestPhone: values.guestPhone,
-        checkInDate: values.checkInDate,
-        checkOutDate: values.checkOutDate,
-        notes: values.notes || null,
-        totalAmount: 0,
-        room: {
-          id: values.roomId,
-          roomNumber: room?.roomNumber || "N/A",
-          pricePerNight: 0,
-          category: room?.category,
-        },
-        guest: {
-          id: String(Date.now()),
-          fullName: values.guestName,
-          email: values.guestEmail,
-          phone: values.guestPhone,
-          idType: values.idType,
-          idNumber: values.idNumber,
-        },
-        payments: [],
-        createdAt: new Date().toISOString(),
-      };
-      setBookings((prev) => [newBooking, ...prev]);
-      setActionLoading(false);
-      setIsNewBookingOpen(false);
-    }, 600);
+  const handleConfirmAction = () => {
+    if (!confirmAction) return;
+    if (confirmAction.type === "approve") {
+      dispatch(updateBookingStatus(confirmAction.bookingId, "APPROVED"));
+    } else if (confirmAction.type === "checkIn") {
+      dispatch(checkInBookingAdmin(confirmAction.bookingId));
+    } else {
+      dispatch(checkOutBookingAdmin(confirmAction.bookingId));
+    }
+    setConfirmAction(null);
   };
 
   return (
@@ -273,20 +161,58 @@ export default function BookingsPage() {
         onStatusFilterChange={setStatusFilter}
       />
 
-      <BookingsTable
-        bookings={filteredBookings}
-        onViewDetail={setDetailBooking}
-        onApprove={(booking) => setConfirmAction({ booking, type: "approve" })}
-        onReject={setRejectBooking}
-        onCheckIn={(booking) => setConfirmAction({ booking, type: "checkIn" })}
-        onCheckOut={(booking) =>
-          setConfirmAction({ booking, type: "checkOut" })
-        }
-      />
+      {actionError && (
+        <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-500 text-sm rounded-xl flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0" /> {actionError}
+        </div>
+      )}
+
+      {listLoading ? (
+        <div className="flex flex-col items-center justify-center py-16 gap-3">
+          <Loader2 className="w-7 h-7 animate-spin text-amber-500" />
+          <p className="text-xs uppercase tracking-widest text-slate-400 dark:text-slate-500">
+            Loading bookings...
+          </p>
+        </div>
+      ) : listError ? (
+        <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 text-sm rounded-xl flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 shrink-0" /> {listError}
+        </div>
+      ) : (
+        <BookingsTable
+          bookings={filteredBookings}
+          onViewDetail={(b) => setDetailBookingId(b.id)}
+          onApprove={(b) =>
+            setConfirmAction({
+              bookingId: b.id,
+              bookingRef: b.bookingRef,
+              guestName: b.guestName,
+              type: "approve",
+            })
+          }
+          onReject={(b) => setRejectBookingId(b.id)}
+          onCheckIn={(b) =>
+            setConfirmAction({
+              bookingId: b.id,
+              bookingRef: b.bookingRef,
+              guestName: b.guestName,
+              type: "checkIn",
+            })
+          }
+          onCheckOut={(b) =>
+            setConfirmAction({
+              bookingId: b.id,
+              bookingRef: b.bookingRef,
+              guestName: b.guestName,
+              type: "checkOut",
+            })
+          }
+        />
+      )}
 
       <BookingDetailModal
-        isOpen={!!detailBooking}
-        onClose={() => setDetailBooking(null)}
+        isOpen={!!detailBookingId}
+        onClose={() => setDetailBookingId(null)}
         booking={detailBooking}
       />
 
@@ -294,28 +220,25 @@ export default function BookingsPage() {
         isOpen={isNewBookingOpen}
         onClose={() => setIsNewBookingOpen(false)}
         onSubmit={handleCreateBooking}
-        rooms={MOCK_ROOMS}
-        loading={actionLoading}
+        rooms={rooms}
+        loading={createLoading}
       />
+      {createError && (
+        <p className="text-red-500 text-xs text-center">{createError}</p>
+      )}
 
       <RejectReasonModal
-        isOpen={!!rejectBooking}
-        onClose={() => setRejectBooking(null)}
+        isOpen={!!rejectBookingId}
+        onClose={() => setRejectBookingId(null)}
         onConfirm={handleReject}
-        loading={actionLoading}
+        loading={actionLoadingId === rejectBookingId}
       />
 
       <ConfirmActionModal
         isOpen={!!confirmAction}
         onClose={() => setConfirmAction(null)}
-        onConfirm={
-          confirmAction?.type === "approve"
-            ? handleConfirmApprove
-            : confirmAction?.type === "checkIn"
-              ? handleConfirmCheckIn
-              : handleConfirmCheckOut
-        }
-        loading={actionLoading}
+        onConfirm={handleConfirmAction}
+        loading={actionLoadingId === confirmAction?.bookingId}
         tone={confirmAction?.type === "approve" ? "emerald" : "amber"}
         title={
           confirmAction?.type === "approve"
@@ -326,7 +249,7 @@ export default function BookingsPage() {
         }
         description={
           confirmAction
-            ? `This will update booking ${confirmAction.booking.bookingRef} for ${confirmAction.booking.guestName}. An email notification will be sent to the guest where applicable.`
+            ? `This will update booking ${confirmAction.bookingRef} for ${confirmAction.guestName}. An email notification will be sent to the guest where applicable.`
             : ""
         }
         confirmLabel={
@@ -338,5 +261,14 @@ export default function BookingsPage() {
         }
       />
     </div>
+  );
+}
+
+// useSearchParams requires a Suspense boundary — same pattern as your guest-side track page
+export default function BookingsPage() {
+  return (
+    <Suspense fallback={null}>
+      <BookingsPageContent />
+    </Suspense>
   );
 }

@@ -5,6 +5,7 @@ export interface DashboardKpis {
   activeGuests: number;
   todayRevenue: number;
   monthRevenue: number;
+  pendingRequests: number;
 }
 
 export interface RoomStatusBreakdown {

@@ -2,8 +2,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Loader2, Upload, Trash2 } from "lucide-react";
-import { Room, RoomCategory, RoomStatus } from "@/app/(admin)/types/room";
+import { X, Loader2, Upload, Trash2, Play } from "lucide-react";
+import {
+  Room,
+  RoomCategory,
+  RoomStatus,
+  isVideoUrl,
+} from "@/app/(admin)/types/room";
 
 export interface RoomFormValues {
   roomNumber: string;
@@ -228,22 +233,38 @@ export default function RoomFormModal({
             {/* Existing images (edit mode) */}
             {form.existingImages.length > 0 && (
               <div className="grid grid-cols-4 gap-2 mt-3">
-                {form.existingImages.map((url) => (
-                  <div key={url} className="relative group">
-                    <img
-                      src={url}
-                      alt="Room media"
-                      className="w-full h-16 object-cover rounded-lg border border-slate-200 dark:border-slate-800"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeExistingImage(url)}
-                      className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </button>
-                  </div>
-                ))}
+                {form.existingImages.map((url) => {
+                  const isVideo = isVideoUrl(url);
+                  return (
+                    <div key={url} className="relative group">
+                      {isVideo ? (
+                        <div className="relative w-full h-16 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 bg-black">
+                          <video
+                            src={url}
+                            className="w-full h-full object-cover"
+                            muted
+                          />
+                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                            <Play className="w-4 h-4 text-white fill-white" />
+                          </div>
+                        </div>
+                      ) : (
+                        <img
+                          src={url}
+                          alt="Room media"
+                          className="w-full h-16 object-cover rounded-lg border border-slate-200 dark:border-slate-800"
+                        />
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => removeExistingImage(url)}
+                        className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             )}
 

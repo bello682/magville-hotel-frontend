@@ -1,8 +1,8 @@
 // src/app/(admin)/components/admin/rooms/RoomsTable.tsx
 "use client";
 
-import { Eye, Pencil, ImageOff } from "lucide-react";
-import { Room, RoomStatus } from "@/app/(admin)/types/room";
+import { Eye, Pencil, ImageOff, Play } from "lucide-react";
+import { Room, RoomStatus, isVideoUrl } from "@/app/(admin)/types/room";
 import RoomStatusBadge from "./RoomStatusBadge";
 
 interface RoomsTableProps {
@@ -82,7 +82,7 @@ export default function RoomsTable({
                     key={room.id}
                     className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
                   >
-                    <td className="px-5 py-3">
+                    {/* <td className="px-5 py-3">
                       <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
                         {room.images[0] ? (
                           <img
@@ -90,6 +90,33 @@ export default function RoomsTable({
                             alt={room.roomNumber}
                             className="w-full h-full object-cover"
                           />
+                        ) : (
+                          <ImageOff className="w-4 h-4 text-slate-400" />
+                        )}
+                      </div>
+                    </td> */}
+
+                    <td className="px-5 py-3">
+                      <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
+                        {room.images[0] ? (
+                          isVideoUrl(room.images[0]) ? (
+                            <>
+                              <video
+                                src={room.images[0]}
+                                className="w-full h-full object-cover"
+                                muted
+                              />
+                              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                <Play className="w-3 h-3 text-white fill-white" />
+                              </div>
+                            </>
+                          ) : (
+                            <img
+                              src={room.images[0]}
+                              alt={room.roomNumber}
+                              className="w-full h-full object-cover"
+                            />
+                          )
                         ) : (
                           <ImageOff className="w-4 h-4 text-slate-400" />
                         )}
