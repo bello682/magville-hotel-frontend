@@ -111,12 +111,16 @@ function TrackBookingPage() {
     if (currentReservation?.rejectionReason)
       return currentReservation.rejectionReason;
 
-    // 2. Dummy fallback messages based on status until backend API is fully integrated
+    // 2. Dynamic fallback messages based on status
     const status = currentReservation?.status?.toUpperCase();
     switch (status) {
       case "CONFIRMED":
       case "APPROVED":
         return "Your reservation has been reviewed and approved by management. We look forward to hosting you.";
+      case "CHECKED_IN":
+        return "Welcome to Magville Hotel & Resort! Your check-in process is complete. Please let concierge know if you need anything during your stay.";
+      case "CHECKED_OUT":
+        return "Thank you for staying with us! Your check-out has been processed successfully. We hope you enjoyed your time at Magville Hotel & Resort.";
       case "CANCELLED":
       case "REJECTED":
         return "Unfortunately, your reservation request could not be accepted due to room unavailability for the requested dates.";
@@ -130,6 +134,10 @@ function TrackBookingPage() {
       case "CONFIRMED":
       case "APPROVED":
         return "bg-green-500/5 border-green-500/20 text-green-300";
+      case "CHECKED_IN":
+        return "bg-blue-500/5 border-blue-500/20 text-blue-300";
+      case "CHECKED_OUT":
+        return "bg-purple-500/5 border-purple-500/20 text-purple-300";
       case "CANCELLED":
       case "REJECTED":
         return "bg-red-500/5 border-red-500/20 text-red-300";
@@ -137,7 +145,6 @@ function TrackBookingPage() {
         return "bg-amber-500/5 border-amber-500/20 text-amber-300";
     }
   };
-
   // ============== temporary safe lookups for currentReservation fields and dummy data =============
 
   // Payment & Next-Steps Instructions based on Booking Status
@@ -186,6 +193,43 @@ function TrackBookingPage() {
                 .
               </p>
             </div>
+          ),
+        };
+
+      case "CHECKED_IN":
+        return {
+          title: "In-House Concierge & Guest Services",
+          style: "bg-blue-500/10 border-blue-500/20 text-blue-300",
+          content: (
+            <div className="space-y-2">
+              <p>
+                We hope you enjoy your stay! For room service, extra amenities,
+                dining reservations, or assistance, dial{" "}
+                <span className="font-bold text-white">0</span> on your room
+                phone or contact desk via WhatsApp.
+              </p>
+              <a
+                href={`https://wa.me/2348137650764?text=Hello%2C%20I%20am%20currently%20checked%20in%20with%20ref%20${currentReservation?.bookingRef}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block text-accent underline font-semibold hover:brightness-125 transition-all pt-1"
+              >
+                Contact Concierge Desk →
+              </a>
+            </div>
+          ),
+        };
+
+      case "CHECKED_OUT":
+        return {
+          title: "Departure Note",
+          style: "bg-purple-500/10 border-purple-500/20 text-purple-300",
+          content: (
+            <p>
+              Thank you for dining and staying with us at Magville Hotel &
+              Resort. We hope you had a pleasant stay and look forward to
+              welcoming you back again soon!
+            </p>
           ),
         };
 
