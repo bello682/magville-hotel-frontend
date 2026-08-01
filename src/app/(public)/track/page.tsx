@@ -47,6 +47,8 @@ function TrackBookingPage() {
     switch (status?.toUpperCase()) {
       case "CONFIRMED":
       case "APPROVED":
+      case "CHECKED_IN":
+      case "CHECKED_OUT":
         return (
           <span className="inline-flex items-center space-x-1 px-2.5 py-1 bg-green-500/10 border border-green-500/30 text-green-400 text-xs font-semibold uppercase tracking-wider rounded-full">
             <CheckCircle2 className="w-3.5 h-3.5" />
@@ -55,10 +57,32 @@ function TrackBookingPage() {
         );
       case "CANCELLED":
       case "REJECTED":
+      case "CHECKED_IN":
+      case "CHECKED_OUT":
         return (
           <span className="inline-flex items-center space-x-1 px-2.5 py-1 bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold uppercase tracking-wider rounded-full">
             <XCircle className="w-3.5 h-3.5" />
             <span>Cancelled</span>
+          </span>
+        );
+      case "CANCELLED":
+      case "REJECTED":
+      case "CHECKED_IN":
+      case "CHECKED_OUT":
+        return (
+          <span className="inline-flex items-center space-x-1 px-2.5 py-1 bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold uppercase tracking-wider rounded-full">
+            <XCircle className="w-3.5 h-3.5" />
+            <span>Checked In</span>
+          </span>
+        );
+      case "CANCELLED":
+      case "REJECTED":
+      case "CHECKED_IN":
+      case "CHECKED_OUT":
+        return (
+          <span className="inline-flex items-center space-x-1 px-2.5 py-1 bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold uppercase tracking-wider rounded-full">
+            <XCircle className="w-3.5 h-3.5" />
+            <span>Checked Out</span>
           </span>
         );
       default:
