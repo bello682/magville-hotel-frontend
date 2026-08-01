@@ -124,7 +124,85 @@ function TrackBookingPage() {
     }
   };
 
-  // ============== temporary safe lookups for currentReservation fields =============
+  // ============== temporary safe lookups for currentReservation fields and dummy data =============
+
+  // Payment & Next-Steps Instructions based on Booking Status
+  const getPaymentDirections = () => {
+    const status = currentReservation?.status?.toUpperCase();
+
+    switch (status) {
+      case "CONFIRMED":
+      case "APPROVED":
+        return {
+          title: "Payment Directions & Confirmation",
+          style: "bg-amber-500/10 border-amber-500/30 text-amber-200",
+          content: (
+            <div className="space-y-2">
+              <p>
+                Your booking request is approved! You may now proceed to make
+                payment to our official account:
+              </p>
+              <div className="bg-black/40 p-3 rounded border border-white/10 font-mono text-xs space-y-1 text-white">
+                <div>
+                  <span className="text-muted">Bank:</span> Zenith Bank
+                </div>
+                <div>
+                  <span className="text-muted">Account Name:</span> Magville
+                  Hotel & Resort
+                </div>
+                <div>
+                  <span className="text-muted">Account Number:</span> 1234567890
+                </div>
+              </div>
+              <p className="pt-1">
+                After payment, please send your receipt of payment along with
+                your reference code (
+                <span className="text-accent font-mono font-bold">
+                  {currentReservation?.bookingRef}
+                </span>
+                ) via WhatsApp to{" "}
+                <a
+                  href={`https://wa.me/2348137650764?text=Hello%2C%20I%20have%20made%20payment%20for%20my%20reservation%20ref%20${currentReservation?.bookingRef}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-accent underline font-semibold hover:brightness-125 transition-all"
+                >
+                  +234 813 765 0764
+                </a>
+                .
+              </p>
+            </div>
+          ),
+        };
+
+      case "CANCELLED":
+      case "REJECTED":
+        return {
+          title: "Next Steps",
+          style: "bg-red-500/10 border-red-500/20 text-red-300",
+          content: (
+            <p>
+              We are sorry, but we cannot fulfill this reservation request at
+              this time. You may try selecting a different room category or
+              choosing alternate dates for your stay.
+            </p>
+          ),
+        };
+
+      default:
+        return {
+          title: "Pending Action",
+          style: "bg-blue-500/10 border-blue-500/20 text-blue-300",
+          content: (
+            <p>
+              Please wait while our concierge team verifies availability. Rooms
+              are typically confirmed within 15–30 minutes during standard
+              operational hours.
+            </p>
+          ),
+        };
+    }
+  };
 
   // Safe field lookups supporting direct values or nested payload properties
   const guestDisplayName =
@@ -334,6 +412,23 @@ function TrackBookingPage() {
                 </p>
               </div>
             </div>
+
+            {/* 💳 Payment & Next Steps Instructions */}
+            {(() => {
+              const direction = getPaymentDirections();
+              return (
+                <div className="pt-4 border-t border-white/10 space-y-2 text-xs">
+                  <span className="text-muted text-[10px] uppercase tracking-wider block">
+                    {direction.title}
+                  </span>
+                  <div
+                    className={`p-4 rounded border text-xs font-sans leading-relaxed ${direction.style}`}
+                  >
+                    {direction.content}
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Total Amount Footer */}
             {amountToDisplay !== undefined && amountToDisplay !== null && (
