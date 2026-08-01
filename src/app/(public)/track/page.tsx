@@ -18,6 +18,7 @@ import {
   Bed,
   CreditCard,
   FileText,
+  MessageSquare,
 } from "lucide-react";
 import { trackReservation } from "../../../store/redux/actions/publicActions";
 import { RootState } from "../../../store/store";
@@ -82,6 +83,48 @@ function TrackBookingPage() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setReference(e.target.value);
   };
+
+  // ============= temporary safe lookups for currentReservation fields =============
+
+  // Safe lookup for Admin Action Reason (backend integration ready with dynamic dummy fallbacks)
+  const getAdminReason = () => {
+    // 1. Check for real backend fields when integrated
+    if (currentReservation?.adminReason) return currentReservation.adminReason;
+    if (currentReservation?.statusReason)
+      return currentReservation.statusReason;
+    if (currentReservation?.cancellationReason)
+      return currentReservation.cancellationReason;
+    if (currentReservation?.rejectionReason)
+      return currentReservation.rejectionReason;
+
+    // 2. Dummy fallback messages based on status until backend API is fully integrated
+    const status = currentReservation?.status?.toUpperCase();
+    switch (status) {
+      case "CONFIRMED":
+      case "APPROVED":
+        return "Your reservation has been reviewed and approved by management. We look forward to hosting you.";
+      case "CANCELLED":
+      case "REJECTED":
+        return "Unfortunately, your reservation request could not be accepted due to room unavailability for the requested dates.";
+      default:
+        return "Your reservation is currently under manual review by our concierge team. No further action is required from you at this time.";
+    }
+  };
+
+  const getReasonCardStyle = (status: string) => {
+    switch (status?.toUpperCase()) {
+      case "CONFIRMED":
+      case "APPROVED":
+        return "bg-green-500/5 border-green-500/20 text-green-300";
+      case "CANCELLED":
+      case "REJECTED":
+        return "bg-red-500/5 border-red-500/20 text-red-300";
+      default:
+        return "bg-amber-500/5 border-amber-500/20 text-amber-300";
+    }
+  };
+
+  // ============== temporary safe lookups for currentReservation fields =============
 
   // Safe field lookups supporting direct values or nested payload properties
   const guestDisplayName =
@@ -274,6 +317,23 @@ function TrackBookingPage() {
                 </div>
               </div>
             )}
+
+            {/* 💬 Admin Action Reason Block */}
+            <div className="pt-4 border-t border-white/10 space-y-1 text-xs">
+              <span className="text-muted text-[10px] uppercase tracking-wider block">
+                Management Note / Status Reason
+              </span>
+              <div
+                className={`flex items-start space-x-2.5 p-3 rounded border transition-colors ${getReasonCardStyle(
+                  currentReservation.status,
+                )}`}
+              >
+                <MessageSquare className="w-3.5 h-3.5 shrink-0 mt-0.5 opacity-80" />
+                <p className="text-xs font-sans leading-relaxed">
+                  {getAdminReason()}
+                </p>
+              </div>
+            </div>
 
             {/* Total Amount Footer */}
             {amountToDisplay !== undefined && amountToDisplay !== null && (
