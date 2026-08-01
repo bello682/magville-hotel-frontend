@@ -3,7 +3,7 @@ import axios from "axios";
 const API_BASE_URL =
   // process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
   process.env.NEXT_PUBLIC_API_URL ||
-  "https://magville-hotel-backend.onrender.com";
+  "https://magville-hotel-backend.onrender.com/api/v1";
 
 export const adminAxios = axios.create({
   baseURL: API_BASE_URL,
