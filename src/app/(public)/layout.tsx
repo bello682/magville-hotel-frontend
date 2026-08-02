@@ -5,12 +5,16 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ReservationModal from "@/components/ReservationModal";
 import { ModalProvider, useModal } from "@/context/ModalContext";
+import AnnouncementController from "../../components/Announcement/AnnouncementController";
 
 function PublicLayoutInner({ children }: { children: React.ReactNode }) {
   const { isModalOpen, closeModal, selectedRoom, openModal } = useModal();
 
   return (
     <div className="min-h-screen flex flex-col justify-between bg-dark">
+      {/* Announcement Controller */}
+      <AnnouncementController />
+
       {/* Navbar receives trigger from Context */}
       <Navbar />
 

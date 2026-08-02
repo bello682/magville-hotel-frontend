@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import MarketingTabs, { MarketingTab } from "../marketing/MarketingTabs";
 import BulkEmailComposer from "../marketing/BulkEmailComposer";
 import AnnouncementsGrid from "../marketing/AnnouncementsGrid";
@@ -13,112 +14,100 @@ import {
   BulkEmailFormValues,
   TargetGroup,
 } from "../../types/marketing";
-
-const MOCK_ANNOUNCEMENTS: Announcement[] = [
-  {
-    id: "a1",
-    title: "Weekend Getaway Special",
-    message: "20% off all suites booked for Friday–Sunday stays this month.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800",
-    ctaText: "Book Now",
-    ctaUrl: "/rooms",
-    status: "PUBLISHED",
-    createdAt: new Date().toISOString(),
-  },
-];
+import { RootState, AppDispatch } from "@/store/store";
+import { useAdminToast } from "../../context/ToastContext";
+import {
+  previewRecipientsAdmin,
+  sendBulkCampaign,
+  resetBulkEmailSend,
+  fetchAnnouncements,
+  saveAnnouncement,
+  resetAnnouncementSave,
+  deleteAnnouncementAdmin,
+} from "@/store/redux/actions/adminAction/marketingActions";
 
 export default function MarketingPage() {
+  const dispatch = useDispatch<AppDispatch>();
+  const { showToast } = useAdminToast();
+
+  const {
+    previewCount,
+    previewLoading,
+    sendLoading,
+    sendSuccess,
+    sendError,
+    lastSentCount,
+    announcements,
+    announcementsLoading,
+    saveLoading,
+    saveSuccess,
+    saveError,
+    deleteLoading,
+  } = useSelector((state: RootState) => state.marketing);
+
   const [activeTab, setActiveTab] = useState<MarketingTab>("bulkEmail");
-  const [announcements, setAnnouncements] =
-    useState<Announcement[]>(MOCK_ANNOUNCEMENTS);
-
-  const [previewCount, setPreviewCount] = useState<number | null>(null);
-  const [previewLoading, setPreviewLoading] = useState(false);
-  const [sendLoading, setSendLoading] = useState(false);
-
   const [editingAnnouncement, setEditingAnnouncement] =
     useState<Announcement | null>(null);
   const [isAnnouncementModalOpen, setIsAnnouncementModalOpen] = useState(false);
   const [deletingAnnouncement, setDeletingAnnouncement] =
     useState<Announcement | null>(null);
-  const [actionLoading, setActionLoading] = useState(false);
 
-  // 🔧 Replace with real POST /api/v1/marketing/preview-recipients call
+  useEffect(() => {
+    dispatch(fetchAnnouncements());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (sendSuccess) {
+      showToast(
+        "success",
+        "Campaign Sent",
+        `Delivered to ${lastSentCount ?? 0} recipient${lastSentCount === 1 ? "" : "s"}`,
+      );
+      dispatch(resetBulkEmailSend());
+    }
+  }, [sendSuccess, lastSentCount, dispatch]);
+
+  useEffect(() => {
+    if (sendError) showToast("error", "Campaign Failed", sendError);
+  }, [sendError]);
+
+  useEffect(() => {
+    if (saveSuccess) {
+      showToast(
+        "success",
+        editingAnnouncement ? "Alert Updated" : "Alert Created",
+        editingAnnouncement?.title,
+      );
+      setIsAnnouncementModalOpen(false);
+      setEditingAnnouncement(null);
+      dispatch(resetAnnouncementSave());
+    }
+  }, [saveSuccess, dispatch]);
+
+  useEffect(() => {
+    if (saveError) showToast("error", "Save Failed", saveError);
+  }, [saveError]);
+
   const handlePreviewRecipients = (
     targetGroup: TargetGroup,
     customRecipients: string,
   ) => {
-    setPreviewLoading(true);
-    setTimeout(() => {
-      const mockCounts: Record<TargetGroup, number> = {
-        ALL: 142,
-        CHECKED_IN: 8,
-        PAST_GUESTS: 96,
-        CUSTOM: customRecipients.split(",").filter((e) => e.trim()).length,
-      };
-      setPreviewCount(mockCounts[targetGroup]);
-      setPreviewLoading(false);
-    }, 500);
+    dispatch(previewRecipientsAdmin(targetGroup, customRecipients));
   };
 
-  // 🔧 Replace with real POST /api/v1/marketing/send-bulk call
   const handleSendCampaign = (values: BulkEmailFormValues) => {
-    setSendLoading(true);
-    setTimeout(() => {
-      setSendLoading(false);
-      alert(`Campaign "${values.subject}" queued for sending.`);
-    }, 800);
+    dispatch(sendBulkCampaign(values));
   };
 
   const handleSubmitAnnouncement = (values: AnnouncementFormValues) => {
-    setActionLoading(true);
-    setTimeout(() => {
-      if (editingAnnouncement) {
-        setAnnouncements((prev) =>
-          prev.map((a) =>
-            a.id === editingAnnouncement.id
-              ? {
-                  ...a,
-                  title: values.title,
-                  message: values.message,
-                  imageUrl: values.imageUrl || null,
-                  ctaText: values.ctaText || null,
-                  ctaUrl: values.ctaUrl || null,
-                  status: values.status,
-                }
-              : a,
-          ),
-        );
-      } else {
-        const newAnnouncement: Announcement = {
-          id: String(Date.now()),
-          title: values.title,
-          message: values.message,
-          imageUrl: values.imageUrl || null,
-          ctaText: values.ctaText || null,
-          ctaUrl: values.ctaUrl || null,
-          status: values.status,
-          createdAt: new Date().toISOString(),
-        };
-        setAnnouncements((prev) => [newAnnouncement, ...prev]);
-      }
-      setActionLoading(false);
-      setIsAnnouncementModalOpen(false);
-      setEditingAnnouncement(null);
-    }, 600);
+    dispatch(saveAnnouncement(values, editingAnnouncement?.id || null));
   };
 
   const handleConfirmDelete = () => {
     if (!deletingAnnouncement) return;
-    setActionLoading(true);
-    setTimeout(() => {
-      setAnnouncements((prev) =>
-        prev.filter((a) => a.id !== deletingAnnouncement.id),
-      );
-      setActionLoading(false);
-      setDeletingAnnouncement(null);
-    }, 500);
+    dispatch(deleteAnnouncementAdmin(deletingAnnouncement.id));
+    showToast("success", "Alert Deleted", deletingAnnouncement.title);
+    setDeletingAnnouncement(null);
   };
 
   return (
@@ -142,6 +131,10 @@ export default function MarketingPage() {
           previewLoading={previewLoading}
           sendLoading={sendLoading}
         />
+      ) : announcementsLoading ? (
+        <div className="flex flex-col items-center justify-center py-16 gap-3">
+          <div className="w-7 h-7 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+        </div>
       ) : (
         <AnnouncementsGrid
           announcements={announcements}
@@ -165,14 +158,14 @@ export default function MarketingPage() {
         }}
         onSubmit={handleSubmitAnnouncement}
         editingAnnouncement={editingAnnouncement}
-        loading={actionLoading}
+        loading={saveLoading}
       />
 
       <ConfirmActionModal
         isOpen={!!deletingAnnouncement}
         onClose={() => setDeletingAnnouncement(null)}
         onConfirm={handleConfirmDelete}
-        loading={actionLoading}
+        loading={deleteLoading}
         tone="red"
         title="Delete This Alert?"
         description={

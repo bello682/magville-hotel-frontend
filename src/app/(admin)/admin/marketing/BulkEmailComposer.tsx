@@ -7,6 +7,7 @@ import {
   BulkEmailFormValues,
   TargetGroup,
 } from "@/app/(admin)/types/marketing";
+import ImageUrlOrUploadInput from "../../shared/ImageUrlOrUploadInput";
 
 interface BulkEmailComposerProps {
   onSend: (values: BulkEmailFormValues) => void;
@@ -83,7 +84,7 @@ export default function BulkEmailComposer({
         </div>
 
         <div>
-          <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1.5">
+          {/* <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1.5">
             Banner Image URL (optional)
           </label>
           <input
@@ -94,6 +95,11 @@ export default function BulkEmailComposer({
             }
             placeholder="https://..."
             className={inputClass}
+          /> */}
+          <ImageUrlOrUploadInput
+            label="Banner Image (optional)"
+            value={form.bannerImageUrl}
+            onChange={(url) => setForm({ ...form, bannerImageUrl: url })}
           />
         </div>
 

@@ -6,6 +6,7 @@ import { bookingReducer } from "./redux/reducers/adminReducer/bookingReducer";
 import { roomAdminReducer } from "./redux/reducers/adminReducer/roomAdminReducer";
 import { paymentReducer } from "./redux/reducers/adminReducer/paymentReducer";
 import { paymentBookingSearchReducer } from "./redux/reducers/adminReducer/paymentBookingSearchReducer";
+import { marketingReducer } from "./redux/reducers/adminReducer/marketingReducer";
 
 const rootReducer = combineReducers({
   public: roomReducer,
@@ -15,6 +16,7 @@ const rootReducer = combineReducers({
   roomAdmin: roomAdminReducer,
   payments: paymentReducer,
   paymentBookingSearch: paymentBookingSearchReducer,
+  marketing: marketingReducer,
 });
 
 export const store = configureStore({
