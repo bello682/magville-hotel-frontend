@@ -35,10 +35,10 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
 
       <aside
         className={`
-          fixed lg:static inset-y-0 left-0 z-30 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 
-          flex flex-col justify-between transition-colors duration-300 ease-in-out
-          ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
-        `}
+    fixed lg:static inset-y-0 left-0 z-30 w-64 h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 
+    flex flex-col justify-between transition-colors duration-300 ease-in-out
+    ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+  `}
       >
         <div className="p-4 space-y-6 pt-6">
           <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 px-3">

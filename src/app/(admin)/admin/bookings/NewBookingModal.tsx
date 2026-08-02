@@ -114,12 +114,17 @@ export default function NewBookingModal({
               className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-amber-500/50 transition"
             >
               <option value="">Choose a room...</option>
-              {rooms.map((room) => (
-                <option key={room.id} value={room.id}>
-                  Room {room.roomNumber}
-                  {room.category ? ` — ${room.category.name}` : ""}
-                </option>
-              ))}
+              {rooms.map(
+                (room) => (
+                  console.log(room),
+                  (
+                    <option key={room.id} value={room.id}>
+                      Room {room.roomNumber}
+                      {room.category ? ` — ${room.category.name}` : ""}
+                    </option>
+                  )
+                ),
+              )}
             </select>
           </div>
 

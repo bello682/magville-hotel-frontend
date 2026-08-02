@@ -6,14 +6,26 @@ import { Loader2, AlertCircle } from "lucide-react";
 import KpiCards from "../components/admin/overview/KpiCards";
 import RoomStatusChart from "../components/admin/overview/RoomStatusChart";
 import FrontDeskFeedTable from "../components/admin/overview/FrontDeskFeedTable";
+import RecentPaymentsWidget from "../components/admin/overview/RecentPaymentsWidget";
+import CategoryBreakdownWidget from "../components/admin/overview/CategoryBreakdownWidget";
 import { fetchDashboardOverview } from "../../../store/redux/actions/adminAction/dashboardActions";
 import { RootState, AppDispatch } from "@/store/store";
+import { useAdminUser } from "../hooks/useAdminUser";
+import OutstandingBalancesWidget from "../components/admin/overview/OutstandingBalancesWidget";
+
+const getGreeting = () => {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
+};
 
 export default function AdminDashboardPage() {
   const dispatch = useDispatch<AppDispatch>();
   const { loading, data, error } = useSelector(
     (state: RootState) => state.dashboard,
   );
+  const currentUser = useAdminUser();
 
   useEffect(() => {
     dispatch(fetchDashboardOverview());
@@ -21,15 +33,27 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-8 pb-10">
-      <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-4">
         <div>
           <p className="text-[11px] text-slate-400 dark:text-slate-500 uppercase tracking-widest font-semibold">
             Home / Admin / Dashboard
           </p>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white mt-1">
-            Operational Overview
+            {getGreeting()}
+            {currentUser?.email ? `, ${currentUser.email.split("@")[0]}` : ""}
           </h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            Here's what's happening at Magville Hotel today.
+          </p>
         </div>
+        <p className="text-xs text-slate-400 dark:text-slate-500">
+          {new Date().toLocaleDateString("en-US", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
+        </p>
       </div>
 
       {loading && !data && (
@@ -53,8 +77,11 @@ export default function AdminDashboardPage() {
           <KpiCards kpis={data.kpis} />
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1 space-y-6">
               <RoomStatusChart roomStatus={data.roomStatus} />
+              <CategoryBreakdownWidget
+                categories={data.categoryBreakdown ?? []}
+              />
             </div>
             <div className="lg:col-span-2 grid grid-cols-1 gap-6">
               <FrontDeskFeedTable
@@ -68,6 +95,11 @@ export default function AdminDashboardPage() {
                 entries={data.frontDeskFeed.expectedDepartures}
                 dateField="checkOutDate"
                 emptyLabel="No departures scheduled for today."
+              />
+              <RecentPaymentsWidget payments={data.recentPayments} />
+              <OutstandingBalancesWidget
+                bookings={data.outstandingBookings ?? []}
+                totalOutstanding={data.kpis.totalOutstanding}
               />
             </div>
           </div>

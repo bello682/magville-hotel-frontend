@@ -30,6 +30,7 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${playfair.variable} ${inter.variable} h-full antialiased dark`}
+      suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-dark text-main font-sans selection:bg-accent selection:text-dark">
         <Providers>{children}</Providers>

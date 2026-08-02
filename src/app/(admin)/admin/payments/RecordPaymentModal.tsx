@@ -1,7 +1,7 @@
 // src/app/(admin)/components/admin/payments/RecordPaymentModal.tsx
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { X, Loader2, Search } from "lucide-react";
 import {
   PaymentBookingLookup,
@@ -18,10 +18,15 @@ export interface RecordPaymentFormValues {
 interface RecordPaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (values: RecordPaymentFormValues) => void;
+  onSubmit: (
+    values: RecordPaymentFormValues,
+    bookingRef: string,
+    guestName: string,
+  ) => void;
   bookingLookupResults: PaymentBookingLookup[];
   onSearchBookings: (query: string) => void;
   loading?: boolean;
+  preselectedBooking?: PaymentBookingLookup | null;
 }
 
 export default function RecordPaymentModal({
@@ -31,6 +36,7 @@ export default function RecordPaymentModal({
   bookingLookupResults,
   onSearchBookings,
   loading,
+  preselectedBooking,
 }: RecordPaymentModalProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedBooking, setSelectedBooking] =
@@ -47,6 +53,9 @@ export default function RecordPaymentModal({
     return selectedBooking.balanceRemaining - parsedAmount;
   }, [selectedBooking, parsedAmount]);
 
+  useEffect(() => {
+    if (preselectedBooking) setSelectedBooking(preselectedBooking);
+  }, [preselectedBooking]);
   const handleAmountChange = (value: string) => {
     setAmount(value);
     if (!selectedBooking) return;
@@ -72,12 +81,16 @@ export default function RecordPaymentModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isValid || !selectedBooking) return;
-    onSubmit({
-      bookingId: selectedBooking.id,
-      amount,
-      method,
-      transactionRef,
-    });
+    onSubmit(
+      {
+        bookingId: selectedBooking.id,
+        amount,
+        method,
+        transactionRef,
+      },
+      selectedBooking.bookingRef,
+      selectedBooking.guestName,
+    );
   };
 
   const handleClose = () => {

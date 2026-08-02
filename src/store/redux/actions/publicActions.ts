@@ -141,13 +141,13 @@ export const trackReservation =
 
       dispatch({
         type: types.TRACK_RESERVATION_SUCCESS,
+        // payload: response.data.data?.booking,
         payload: response.data.data?.booking,
       });
     } catch (error: any) {
       dispatch({
         type: types.TRACK_RESERVATION_FAILURE,
-        payload:
-          error.response?.data?.message || "Booking reference not found.",
+        payload: error.response?.data?.message || "Reservation not found.",
       });
     }
   };

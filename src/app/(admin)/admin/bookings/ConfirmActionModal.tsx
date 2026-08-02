@@ -1,17 +1,19 @@
 // src/app/(admin)/components/admin/bookings/ConfirmActionModal.tsx
 "use client";
-
+import { useState, useEffect } from "react";
 import { AlertTriangle, Loader2, X } from "lucide-react";
 
 interface ConfirmActionModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
   loading?: boolean;
   title: string;
   description: string;
   confirmLabel: string;
   tone?: "amber" | "emerald" | "red";
+  showMessageField?: boolean;
+  defaultMessage?: string;
+  onConfirm: (message?: string) => void;
 }
 
 const TONE_CLASSES = {
@@ -29,7 +31,15 @@ export default function ConfirmActionModal({
   description,
   confirmLabel,
   tone = "amber",
+  showMessageField = false,
+  defaultMessage = "",
 }: ConfirmActionModalProps) {
+  const [message, setMessage] = useState(defaultMessage);
+
+  useEffect(() => {
+    setMessage(defaultMessage); // 🆕 resync when a different action opens with a new default
+  }, [defaultMessage, isOpen]);
+
   if (!isOpen) return null;
 
   return (
@@ -56,6 +66,20 @@ export default function ConfirmActionModal({
           {description}
         </p>
 
+        {showMessageField && (
+          <div>
+            <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1.5">
+              Message to Guest (editable)
+            </label>
+            <textarea
+              rows={4}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg p-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-amber-500/50 resize-none transition"
+            />
+          </div>
+        )}
+
         <div className="flex gap-3 pt-2">
           <button
             onClick={onClose}
@@ -64,7 +88,7 @@ export default function ConfirmActionModal({
             Cancel
           </button>
           <button
-            onClick={onConfirm}
+            onClick={() => onConfirm(showMessageField ? message : undefined)}
             disabled={loading}
             className={`flex-1 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition flex items-center justify-center gap-2 disabled:opacity-60 ${TONE_CLASSES[tone]}`}
           >

@@ -1,7 +1,7 @@
-// src/app/(admin)/components/admin/payments/PaymentsTable.tsx
+// src/app/(admin)/components/payments/PaymentsTable.tsx
 "use client";
 
-import { Eye } from "lucide-react";
+import { Eye, Receipt } from "lucide-react";
 import { Payment, PaymentMethod } from "@/app/(admin)/types/payment";
 import PaymentMethodBadge from "./PaymentMethodBadge";
 
@@ -10,6 +10,7 @@ interface PaymentsTableProps {
   methodFilter: PaymentMethod | "ALL";
   onMethodFilterChange: (method: PaymentMethod | "ALL") => void;
   onViewBooking: (bookingId: string) => void;
+  onViewReceipt: (payment: Payment) => void;
 }
 
 const METHOD_OPTIONS: (PaymentMethod | "ALL")[] = [
@@ -24,6 +25,7 @@ export default function PaymentsTable({
   methodFilter,
   onMethodFilterChange,
   onViewBooking,
+  onViewReceipt,
 }: PaymentsTableProps) {
   return (
     <div className="space-y-4">
@@ -105,6 +107,13 @@ export default function PaymentsTable({
                         className="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition"
                       >
                         <Eye className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => onViewReceipt(p)}
+                        title="View Receipt"
+                        className="p-1.5 rounded-lg text-amber-500 hover:bg-amber-500/10 transition"
+                      >
+                        <Receipt className="w-4 h-4" />
                       </button>
                     </td>
                   </tr>

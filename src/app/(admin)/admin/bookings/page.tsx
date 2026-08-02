@@ -27,6 +27,22 @@ import {
   fetchRoomsForBookingLookup,
 } from "@/store/redux/actions/adminAction/bookingActions";
 import { useState } from "react";
+import { useAdminToast } from "../../context/ToastContext";
+
+const DEFAULT_MESSAGES: Record<string, string> = {
+  approve:
+    "Your reservation request has been reviewed and approved. Please proceed with payment using the account details provided, then send your receipt via WhatsApp with your booking reference.",
+  checkIn:
+    "Welcome to Magville Hotel & Resort! Your check-in is complete. Please contact the front desk for any assistance during your stay.",
+  checkOut:
+    "Thank you for staying with us! Your check-out has been processed. We hope you enjoyed your time and look forward to welcoming you again.",
+};
+
+const actionLabels: Record<"approve" | "checkIn" | "checkOut", string> = {
+  approve: "approved",
+  checkIn: "checked in",
+  checkOut: "checked out",
+};
 
 function BookingsPageContent() {
   const dispatch = useDispatch<AppDispatch>();
@@ -44,8 +60,9 @@ function BookingsPageContent() {
     actionLoadingId,
     actionError,
   } = useSelector((state: RootState) => state.adminBookings);
+  const { showToast } = useAdminToast();
 
-  const { rooms } = useSelector((state: RootState) => state.roomLookup);
+  const { rooms } = useSelector((state: RootState) => state.roomAdmin);
 
   const [search, setSearch] = useState("");
   const initialStatus =
@@ -103,6 +120,21 @@ function BookingsPageContent() {
     }
   }, [createSuccess, dispatch]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      dispatch(
+        fetchAllBookings(
+          statusFilter !== "ALL" ? { status: statusFilter } : undefined,
+        ),
+      );
+    }, 30000); // same 30s cadence as the notification bell
+    return () => clearInterval(interval);
+  }, [statusFilter, dispatch]);
+
+  useEffect(() => {
+    if (actionError) showToast("error", "Action Failed", actionError);
+  }, [actionError]);
+
   const filteredBookings = useMemo(() => {
     return bookings.filter((b) => {
       const matchesSearch =
@@ -123,15 +155,27 @@ function BookingsPageContent() {
     setRejectBookingId(null);
   };
 
-  const handleConfirmAction = () => {
+  const handleConfirmAction = (message?: string) => {
     if (!confirmAction) return;
     if (confirmAction.type === "approve") {
-      dispatch(updateBookingStatus(confirmAction.bookingId, "APPROVED"));
+      dispatch(
+        updateBookingStatus(
+          confirmAction.bookingId,
+          "APPROVED",
+          undefined,
+          message,
+        ),
+      );
     } else if (confirmAction.type === "checkIn") {
-      dispatch(checkInBookingAdmin(confirmAction.bookingId));
+      dispatch(checkInBookingAdmin(confirmAction.bookingId, message));
     } else {
-      dispatch(checkOutBookingAdmin(confirmAction.bookingId));
+      dispatch(checkOutBookingAdmin(confirmAction.bookingId, message));
     }
+    showToast(
+      "success",
+      `Booking ${actionLabels[confirmAction.type]}`,
+      confirmAction.bookingRef,
+    );
     setConfirmAction(null);
   };
 
@@ -237,6 +281,10 @@ function BookingsPageContent() {
       <ConfirmActionModal
         isOpen={!!confirmAction}
         onClose={() => setConfirmAction(null)}
+        showMessageField
+        defaultMessage={
+          confirmAction ? DEFAULT_MESSAGES[confirmAction.type] : ""
+        }
         onConfirm={handleConfirmAction}
         loading={actionLoadingId === confirmAction?.bookingId}
         tone={confirmAction?.type === "approve" ? "emerald" : "amber"}

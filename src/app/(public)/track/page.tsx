@@ -22,15 +22,15 @@ import {
 } from "lucide-react";
 import { trackReservation } from "../../../store/redux/actions/publicActions";
 import { RootState } from "../../../store/store";
+import GuestReceiptModal from "@/components/GuestReceiptModal";
 
 function TrackBookingPage() {
   const dispatch = useDispatch<any>();
   const [reference, setReference] = useState("");
+  const [isReceiptOpen, setIsReceiptOpen] = useState(false);
 
-  // ⚡ 1. Read query parameters from URL
   const searchParams = useSearchParams();
 
-  // ⚡ 2. Auto-fill input & trigger search if ref parameter exists
   useEffect(() => {
     const refFromUrl = searchParams.get("ref");
     if (refFromUrl) {
@@ -43,6 +43,137 @@ function TrackBookingPage() {
     (state: RootState) => state.reservation,
   );
 
+  // Payment & Next-Steps Instructions based on Booking Status
+  const getPaymentDirections = () => {
+    const status = currentReservation?.status?.toUpperCase();
+
+    switch (status) {
+      case "CONFIRMED":
+      case "APPROVED":
+        return {
+          title: "Payment Directions & Confirmation",
+          style: "bg-amber-500/10 border-amber-500/30 text-amber-200",
+          content: (
+            <div className="space-y-3">
+              <p>
+                Your booking request is approved! You may now proceed to make
+                payment to our official account:
+              </p>
+              <div className="bg-black/40 p-3 rounded border border-white/10 font-mono text-xs space-y-1 text-white">
+                <div>
+                  <span className="text-muted">Bank:</span> Zenith Bank
+                </div>
+                <div>
+                  <span className="text-muted">Account Name:</span> Magville
+                  Hotel & Resort
+                </div>
+                <div>
+                  <span className="text-muted">Account Number:</span> 1234567890
+                </div>
+              </div>
+
+              {/* Reference & WhatsApp Contact Details */}
+              <div className="pt-2 border-t border-white/10 space-y-1">
+                <p>
+                  Reference Code:{" "}
+                  <span className="text-accent font-mono font-bold">
+                    {currentReservation?.bookingRef}
+                  </span>
+                </p>
+                <p>
+                  Send receipt via WhatsApp:{" "}
+                  <a
+                    href={`https://wa.me/2348134897802?text=Hello%2C%20I%20have%20made%20payment%20for%20my%20reservation%20ref%20${currentReservation?.bookingRef}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-accent underline font-semibold hover:brightness-125 transition-all"
+                  >
+                    +234 813 765 0764
+                  </a>
+                </p>
+              </div>
+            </div>
+          ),
+        };
+
+      case "CHECKED_IN":
+        return {
+          title: "In-House Concierge & Guest Services",
+          style: "bg-blue-500/10 border-blue-500/20 text-blue-300",
+          content: (
+            <div className="space-y-2">
+              <p>
+                We hope you enjoy your stay! For room service, extra amenities,
+                dining reservations, or assistance, dial{" "}
+                <span className="font-bold text-white">0</span> on your room
+                phone or contact desk via WhatsApp.
+              </p>
+              <a
+                href={`https://wa.me/2348134897802?text=Hello%2C%20I%20am%20currently%20checked%20in%20with%20ref%20${currentReservation?.bookingRef}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block text-accent underline font-semibold hover:brightness-125 transition-all pt-1"
+              >
+                Contact Concierge Desk →
+              </a>
+            </div>
+          ),
+        };
+
+      case "CHECKED_OUT":
+        return {
+          title: "Departure Note",
+          style: "bg-purple-500/10 border-purple-500/20 text-purple-300",
+          content: (
+            <p>
+              Thank you for dining and staying with us at Magville Hotel &
+              Resort. We hope you had a pleasant stay and look forward to
+              welcoming you back again soon!
+            </p>
+          ),
+        };
+
+      case "CANCELLED":
+      case "REJECTED":
+        return {
+          title: "Next Steps",
+          style: "bg-red-500/10 border-red-500/20 text-red-300",
+          content: (
+            <div className="space-y-2">
+              <p>
+                We are sorry, but we cannot fulfill this reservation request at
+                this time. You may try selecting a different room category or
+                choosing alternate dates for your stay. For further assistance,
+                please contact our concierge desk via WhatsApp.
+              </p>
+              <a
+                href={`https://wa.me/2348134897802?text=Hello%2C%20I%20have%20an%20inquiry%20regarding%20my%20cancelled%2Frejected%20reservation%20ref%20${currentReservation?.bookingRef}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block text-accent underline font-semibold hover:brightness-125 transition-all pt-1"
+              >
+                Contact Concierge Desk →
+              </a>
+            </div>
+          ),
+        };
+
+      default:
+        return {
+          title: "Pending Action",
+          style: "bg-blue-500/10 border-blue-500/20 text-blue-300",
+          content: (
+            <p>
+              Please wait while our concierge team verifies availability. Rooms
+              are typically confirmed within 15–30 minutes during standard
+              operational hours.
+            </p>
+          ),
+        };
+    }
+  };
+
+  // ✅ Pure presentation — unchanged
   const getStatusBadge = (status: string) => {
     switch (status?.toUpperCase()) {
       case "CONFIRMED":
@@ -85,50 +216,7 @@ function TrackBookingPage() {
     }
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!reference.trim()) return;
-
-    // The reducer will automatically clear currentReservation when
-    // TRACK_RESERVATION_REQUEST fires!
-    dispatch(trackReservation(reference));
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setReference(e.target.value);
-  };
-
-  // ============= temporary safe lookups for currentReservation fields =============
-
-  // Safe lookup for Admin Action Reason (backend integration ready with dynamic dummy fallbacks)
-  const getAdminReason = () => {
-    // 1. Check for real backend fields when integrated
-    if (currentReservation?.adminReason) return currentReservation.adminReason;
-    if (currentReservation?.statusReason)
-      return currentReservation.statusReason;
-    if (currentReservation?.cancellationReason)
-      return currentReservation.cancellationReason;
-    if (currentReservation?.rejectionReason)
-      return currentReservation.rejectionReason;
-
-    // 2. Dynamic fallback messages based on status
-    const status = currentReservation?.status?.toUpperCase();
-    switch (status) {
-      case "CONFIRMED":
-      case "APPROVED":
-        return "Your reservation has been reviewed and approved by management. We look forward to hosting you.";
-      case "CHECKED_IN":
-        return "Welcome to Magville Hotel & Resort! Your check-in process is complete. Please let concierge know if you need anything during your stay.";
-      case "CHECKED_OUT":
-        return "Thank you for staying with us! Your check-out has been processed successfully. We hope you enjoyed your time at Magville Hotel & Resort.";
-      case "CANCELLED":
-      case "REJECTED":
-        return "Unfortunately, your reservation request could not be accepted due to room unavailability for the requested dates.";
-      default:
-        return "Your reservation is currently under manual review by our concierge team. No further action is required from you at this time.";
-    }
-  };
-
+  // ✅ Pure presentation — unchanged
   const getReasonCardStyle = (status: string) => {
     switch (status?.toUpperCase()) {
       case "CONFIRMED":
@@ -145,135 +233,36 @@ function TrackBookingPage() {
         return "bg-amber-500/5 border-amber-500/20 text-amber-300";
     }
   };
-  // ============== temporary safe lookups for currentReservation fields and dummy data =============
 
-  // Payment & Next-Steps Instructions based on Booking Status
-  const getPaymentDirections = () => {
-    const status = currentReservation?.status?.toUpperCase();
-
-    switch (status) {
-      case "CONFIRMED":
-      case "APPROVED":
-        return {
-          title: "Payment Directions & Confirmation",
-          style: "bg-amber-500/10 border-amber-500/30 text-amber-200",
-          content: (
-            <div className="space-y-2">
-              <p>
-                Your booking request is approved! You may now proceed to make
-                payment to our official account:
-              </p>
-              <div className="bg-black/40 p-3 rounded border border-white/10 font-mono text-xs space-y-1 text-white">
-                <div>
-                  <span className="text-muted">Bank:</span> Zenith Bank
-                </div>
-                <div>
-                  <span className="text-muted">Account Name:</span> Magville
-                  Hotel & Resort
-                </div>
-                <div>
-                  <span className="text-muted">Account Number:</span> 1234567890
-                </div>
-              </div>
-              <p className="pt-1">
-                After payment, please send your receipt of payment along with
-                your reference code (
-                <span className="text-accent font-mono font-bold">
-                  {currentReservation?.bookingRef}
-                </span>
-                ) via WhatsApp to{" "}
-                <a
-                  href={`https://wa.me/2348137650764?text=Hello%2C%20I%20have%20made%20payment%20for%20my%20reservation%20ref%20${currentReservation?.bookingRef}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-accent underline font-semibold hover:brightness-125 transition-all"
-                >
-                  +234 813 765 0764
-                </a>
-                .
-              </p>
-            </div>
-          ),
-        };
-
-      case "CHECKED_IN":
-        return {
-          title: "In-House Concierge & Guest Services",
-          style: "bg-blue-500/10 border-blue-500/20 text-blue-300",
-          content: (
-            <div className="space-y-2">
-              <p>
-                We hope you enjoy your stay! For room service, extra amenities,
-                dining reservations, or assistance, dial{" "}
-                <span className="font-bold text-white">0</span> on your room
-                phone or contact desk via WhatsApp.
-              </p>
-              <a
-                href={`https://wa.me/2348137650764?text=Hello%2C%20I%20am%20currently%20checked%20in%20with%20ref%20${currentReservation?.bookingRef}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block text-accent underline font-semibold hover:brightness-125 transition-all pt-1"
-              >
-                Contact Concierge Desk →
-              </a>
-            </div>
-          ),
-        };
-
-      case "CHECKED_OUT":
-        return {
-          title: "Departure Note",
-          style: "bg-purple-500/10 border-purple-500/20 text-purple-300",
-          content: (
-            <p>
-              Thank you for dining and staying with us at Magville Hotel &
-              Resort. We hope you had a pleasant stay and look forward to
-              welcoming you back again soon!
-            </p>
-          ),
-        };
-
-      case "CANCELLED":
-      case "REJECTED":
-        return {
-          title: "Next Steps",
-          style: "bg-red-500/10 border-red-500/20 text-red-300",
-          content: (
-            <p>
-              We are sorry, but we cannot fulfill this reservation request at
-              this time. You may try selecting a different room category or
-              choosing alternate dates for your stay.
-            </p>
-          ),
-        };
-
-      default:
-        return {
-          title: "Pending Action",
-          style: "bg-blue-500/10 border-blue-500/20 text-blue-300",
-          content: (
-            <p>
-              Please wait while our concierge team verifies availability. Rooms
-              are typically confirmed within 15–30 minutes during standard
-              operational hours.
-            </p>
-          ),
-        };
-    }
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reference.trim()) return;
+    dispatch(trackReservation(reference));
   };
 
-  // Safe field lookups supporting direct values or nested payload properties
-  const guestDisplayName =
-    currentReservation?.guestName || currentReservation?.fullName || "N/A";
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setReference(e.target.value);
+  };
+
+  // Safe field lookups
+  const guestDisplayName = currentReservation?.guestName || "N/A";
   const roomCategory =
-    currentReservation?.room?.category?.name ||
-    currentReservation?.room?.name ||
-    "Standard Suite";
+    currentReservation?.room?.category?.name || "Standard Suite";
   const roomNum = currentReservation?.room?.roomNumber;
-  const amountToDisplay =
-    currentReservation?.totalAmount ?? currentReservation?.totalPrice;
-  const bookingNotes =
-    currentReservation?.notes || currentReservation?.specialRequests;
+
+  // Check if payment is completed/paid or if guest is partially paid
+  const isPaid = currentReservation?.paymentStatus === "PAID";
+  const isPartiallyPaid = currentReservation?.paymentStatus === "PARTIAL";
+
+  const amountToDisplay = currentReservation?.totalAmount;
+  const bookingNotes = currentReservation?.notes;
+
+  // 🆕 Real message from the database — set by admin at time of action (approve/reject/check-in/check-out)
+  const statusUpper = currentReservation?.status?.toUpperCase();
+  const displayMessage =
+    statusUpper === "REJECTED" || statusUpper === "CANCELLED"
+      ? currentReservation?.rejectionReason
+      : currentReservation?.guestMessage;
 
   return (
     <div className="min-h-screen bg-dark text-main py-40 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center">
@@ -329,7 +318,7 @@ function TrackBookingPage() {
           </motion.div>
         )}
 
-        {/* Booking Details Card — Only shown when currentReservation exists AND there is no error */}
+        {/* Booking Details Card */}
         {currentReservation && !loading && !error && (
           <motion.div
             initial={{ opacity: 0, scale: 0.98 }}
@@ -351,7 +340,6 @@ function TrackBookingPage() {
 
             {/* Main Info Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-              {/* Guest Name */}
               <div className="space-y-1">
                 <span className="text-muted text-[10px] uppercase tracking-wider block">
                   Guest Name
@@ -362,20 +350,6 @@ function TrackBookingPage() {
                 </div>
               </div>
 
-              {/* Contact Email (If Present) */}
-              {currentReservation.email && (
-                <div className="space-y-1">
-                  <span className="text-muted text-[10px] uppercase tracking-wider block">
-                    Contact Email
-                  </span>
-                  <div className="flex items-center space-x-2 text-white">
-                    <Mail className="w-3.5 h-3.5 text-accent" />
-                    <span>{currentReservation.email}</span>
-                  </div>
-                </div>
-              )}
-
-              {/* Check-In */}
               <div className="space-y-1">
                 <span className="text-muted text-[10px] uppercase tracking-wider block">
                   Check-In
@@ -390,7 +364,6 @@ function TrackBookingPage() {
                 </div>
               </div>
 
-              {/* Check-Out */}
               <div className="space-y-1">
                 <span className="text-muted text-[10px] uppercase tracking-wider block">
                   Check-Out
@@ -405,7 +378,6 @@ function TrackBookingPage() {
                 </div>
               </div>
 
-              {/* Room Details */}
               <div className="space-y-1">
                 <span className="text-muted text-[10px] uppercase tracking-wider block">
                   Room & Category
@@ -423,7 +395,6 @@ function TrackBookingPage() {
                 </div>
               </div>
 
-              {/* Booking Date */}
               {currentReservation.createdAt && (
                 <div className="space-y-1">
                   <span className="text-muted text-[10px] uppercase tracking-wider block">
@@ -454,22 +425,74 @@ function TrackBookingPage() {
               </div>
             )}
 
-            {/* 💬 Admin Action Reason Block */}
-            <div className="pt-4 border-t border-white/10 space-y-1 text-xs">
-              <span className="text-muted text-[10px] uppercase tracking-wider block">
-                Management Note / Status Reason
-              </span>
-              <div
-                className={`flex items-start space-x-2.5 p-3 rounded border transition-colors ${getReasonCardStyle(
-                  currentReservation.status,
-                )}`}
-              >
-                <MessageSquare className="w-3.5 h-3.5 shrink-0 mt-0.5 opacity-80" />
-                <p className="text-xs font-sans leading-relaxed">
-                  {getAdminReason()}
-                </p>
+            {/* 🆕 Real message from admin — only rendered if one actually exists */}
+            {displayMessage && (
+              <div className="pt-4 border-t border-white/10 space-y-1 text-xs">
+                <span className="text-muted text-[10px] uppercase tracking-wider block">
+                  Message from Magville Hotel
+                </span>
+                <div
+                  className={`flex items-start space-x-2.5 p-3 rounded border transition-colors ${getReasonCardStyle(
+                    currentReservation.status,
+                  )}`}
+                >
+                  <MessageSquare className="w-3.5 h-3.5 shrink-0 mt-0.5 opacity-80" />
+                  <p className="text-xs font-sans leading-relaxed whitespace-pre-line">
+                    {displayMessage}
+                  </p>
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* 🆕 Outstanding balance notices — only shown when relevant */}
+            {currentReservation?.paymentStatus !== "PAID" && (
+              <>
+                {statusUpper === "CHECKED_IN" && (
+                  <div className="pt-4 border-t border-white/10 space-y-1 text-xs">
+                    <div className="flex items-start space-x-2.5 p-3 rounded border bg-amber-500/10 border-amber-500/30 text-amber-200">
+                      <CreditCard className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                      <p className="text-xs font-sans leading-relaxed">
+                        We kindly expect settlement of your outstanding balance
+                        of{" "}
+                        <span className="font-bold text-accent">
+                          ₦
+                          {Number(
+                            currentReservation?.balanceRemaining,
+                          ).toLocaleString()}
+                        </span>{" "}
+                        before check-out.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {statusUpper === "APPROVED" &&
+                  currentReservation?.totalPaid > 0 && (
+                    <div className="pt-4 border-t border-white/10 space-y-1 text-xs">
+                      <div className="flex items-start space-x-2.5 p-3 rounded border bg-blue-500/10 border-blue-500/20 text-blue-300">
+                        <CreditCard className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                        <p className="text-xs font-sans leading-relaxed">
+                          You've paid{" "}
+                          <span className="font-bold text-accent">
+                            ₦
+                            {Number(
+                              currentReservation?.totalPaid,
+                            ).toLocaleString()}
+                          </span>{" "}
+                          so far. A remaining balance of{" "}
+                          <span className="font-bold text-accent">
+                            ₦
+                            {Number(
+                              currentReservation?.balanceRemaining,
+                            ).toLocaleString()}
+                          </span>{" "}
+                          is expected at check-in.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+              </>
+            )}
 
             {/* 💳 Payment & Next Steps Instructions */}
             {(() => {
@@ -490,22 +513,62 @@ function TrackBookingPage() {
 
             {/* Total Amount Footer */}
             {amountToDisplay !== undefined && amountToDisplay !== null && (
-              <div className="pt-4 border-t border-white/10 flex justify-between items-center text-xs">
-                <div className="flex items-center space-x-2 text-muted">
-                  <CreditCard className="w-4 h-4 text-accent" />
-                  <span className="text-[10px] uppercase tracking-wider">
-                    Total Amount Due
-                  </span>
+              <div className="pt-4 border-t border-white/10 space-y-3">
+                {/* <div className="pt-4 border-t border-white/10 flex justify-between items-center text-xs"> */}
+                <div className="flex justify-between items-center text-xs">
+                  <div className="flex items-center space-x-2 text-muted">
+                    <CreditCard className="w-4 h-4 text-accent" />
+                    <span className="text-[10px] uppercase tracking-wider">
+                      {isPaid ? "Total Amount" : "Balance Due"}
+                    </span>
+                  </div>
+                  <div className="text-right flex items-center space-x-2">
+                    <span className="text-accent font-serif font-bold text-lg">
+                      ₦
+                      {Number(
+                        isPaid
+                          ? amountToDisplay
+                          : (currentReservation?.balanceRemaining ??
+                              amountToDisplay),
+                      ).toLocaleString()}
+                    </span>
+                    {isPaid && (
+                      <span className="text-[10px] bg-green-500/20 text-green-400 border border-green-500/30 px-2 py-0.5 rounded font-mono font-bold uppercase">
+                        Paid
+                      </span>
+                    )}
+                    {isPartiallyPaid && (
+                      <span className="text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded font-mono font-bold uppercase">
+                        Partial
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <div className="text-right">
-                  <span className="text-accent font-serif font-bold text-lg">
-                    ₦{Number(amountToDisplay).toLocaleString()}
-                  </span>
-                </div>
+                {/* 🆕 Only shown when admin has recorded at least one payment */}
+                {currentReservation?.payments &&
+                  currentReservation.payments.length > 0 && (
+                    <button
+                      onClick={() => setIsReceiptOpen(true)}
+                      className="w-full flex items-center justify-center gap-2 border border-accent/40 text-accent hover:bg-accent/10 py-2.5 text-xs font-semibold uppercase tracking-wider transition-all"
+                    >
+                      View Payment Receipt
+                    </button>
+                  )}
               </div>
             )}
           </motion.div>
         )}
+        <GuestReceiptModal
+          isOpen={isReceiptOpen}
+          onClose={() => setIsReceiptOpen(false)}
+          bookingRef={currentReservation?.bookingRef}
+          guestName={guestDisplayName}
+          roomNumber={roomNum}
+          payments={currentReservation?.payments || []}
+          totalAmount={currentReservation?.totalAmount || 0}
+          totalPaid={currentReservation?.totalPaid || 0}
+          balanceRemaining={currentReservation?.balanceRemaining || 0}
+        />
       </div>
     </div>
   );

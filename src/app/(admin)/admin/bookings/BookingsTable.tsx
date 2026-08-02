@@ -84,7 +84,6 @@ export default function BookingsTable({
                     >
                       <Eye className="w-4 h-4" />
                     </button>
-
                     {booking.status === "PENDING" && (
                       <>
                         <button
@@ -107,13 +106,19 @@ export default function BookingsTable({
                     {booking.status === "APPROVED" && (
                       <button
                         onClick={() => onCheckIn(booking)}
-                        title="Check In"
-                        className="p-1.5 rounded-lg text-sky-500 hover:bg-sky-500/10 transition"
+                        disabled={
+                          !booking.payments || booking.payments.length === 0
+                        }
+                        title={
+                          !booking.payments || booking.payments.length === 0
+                            ? "Payment required before check-in"
+                            : "Check In"
+                        }
+                        className="p-1.5 rounded-lg text-sky-500 hover:bg-sky-500/10 transition disabled:opacity-30 disabled:cursor-not-allowed"
                       >
                         <LogIn className="w-4 h-4" />
                       </button>
                     )}
-
                     {booking.status === "CHECKED_IN" && (
                       <button
                         onClick={() => onCheckOut(booking)}

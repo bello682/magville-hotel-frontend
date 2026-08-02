@@ -100,6 +100,7 @@ export const updateBookingStatus =
     id: string,
     status: "APPROVED" | "REJECTED" | "CANCELLED",
     rejectionReason?: string,
+    guestMessage?: string,
   ) =>
   async (dispatch: Dispatch<BookingActionTypes>) => {
     dispatch({ type: BOOKING_STATUS_UPDATE_REQUEST, payload: id });
@@ -107,6 +108,7 @@ export const updateBookingStatus =
       const { data } = await adminAxios.patch(`/bookings/${id}/status`, {
         status,
         ...(rejectionReason && { rejectionReason }),
+        ...(guestMessage && { guestMessage }),
       });
       dispatch({
         type: BOOKING_STATUS_UPDATE_SUCCESS,
@@ -122,10 +124,13 @@ export const updateBookingStatus =
 
 // --- Check-In ---
 export const checkInBookingAdmin =
-  (id: string) => async (dispatch: Dispatch<BookingActionTypes>) => {
+  (id: string, guestMessage?: string) =>
+  async (dispatch: Dispatch<BookingActionTypes>) => {
     dispatch({ type: BOOKING_CHECKIN_REQUEST, payload: id });
     try {
-      const { data } = await adminAxios.patch(`/bookings/${id}/check-in`);
+      const { data } = await adminAxios.patch(`/bookings/${id}/check-in`, {
+        ...(guestMessage && { guestMessage }),
+      });
       dispatch({ type: BOOKING_CHECKIN_SUCCESS, payload: data.data.booking });
     } catch (error: any) {
       dispatch({
@@ -137,10 +142,13 @@ export const checkInBookingAdmin =
 
 // --- Check-Out ---
 export const checkOutBookingAdmin =
-  (id: string) => async (dispatch: Dispatch<BookingActionTypes>) => {
+  (id: string, guestMessage?: string) =>
+  async (dispatch: Dispatch<BookingActionTypes>) => {
     dispatch({ type: BOOKING_CHECKOUT_REQUEST, payload: id });
     try {
-      const { data } = await adminAxios.patch(`/bookings/${id}/check-out`);
+      const { data } = await adminAxios.patch(`/bookings/${id}/check-out`, {
+        ...(guestMessage && { guestMessage }),
+      });
       dispatch({ type: BOOKING_CHECKOUT_SUCCESS, payload: data.data.booking });
     } catch (error: any) {
       dispatch({

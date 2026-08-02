@@ -112,11 +112,11 @@ export default function Navbar() {
               ))}
             </nav>
 
-            <div className="pt-6 text-center space-y-3">
+            <div className="pt-6 text-center  space-y-3">
               <Link
                 href="/rooms"
                 onClick={() => setIsOpen(false)}
-                className="w-full bg-accent text-dark py-3.5 font-semibold text-xs tracking-widest uppercase shadow-lg shadow-accent/20"
+                className=" block w-full bg-accent text-dark py-3.5 font-semibold text-xs tracking-widest uppercase shadow-lg shadow-accent/20"
               >
                 Book Online Now
               </Link>
@@ -124,7 +124,7 @@ export default function Navbar() {
               <Link
                 href="/track"
                 onClick={() => setIsOpen(false)}
-                className="block w-full border border-white/20 text-main hover:border-accent hover:text-accent py-3 font-semibold text-xs tracking-widest uppercase transition-all"
+                className="block w-full  border border-white/20 text-main hover:border-accent hover:text-accent py-3 font-semibold text-xs tracking-widest uppercase transition-all"
               >
                 Track Existing Reservation
               </Link>

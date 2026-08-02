@@ -146,14 +146,14 @@ export default function AvailableRoomsModal({
                     </div>
 
                     <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between gap-2">
-                      <Link
+                      {/* <Link
                         href={roomId ? `/rooms/${roomId}` : "/rooms"}
                         target="_blank"
                         className="px-3 py-2 border border-white/20 text-white/80 hover:text-white hover:border-accent/50 text-[11px] font-semibold uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer"
                       >
                         <Eye className="w-3.5 h-3.5 text-accent" />
                         <span>Details</span>
-                      </Link>
+                      </Link> */}
 
                       <button
                         type="button"

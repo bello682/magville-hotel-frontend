@@ -6,6 +6,7 @@ export interface DashboardKpis {
   todayRevenue: number;
   monthRevenue: number;
   pendingRequests: number;
+  totalOutstanding: number;
 }
 
 export interface RoomStatusBreakdown {
@@ -31,8 +32,39 @@ export interface FrontDeskFeed {
   expectedDepartures: FrontDeskEntry[];
 }
 
+export interface RecentPayment {
+  id: string;
+  amount: number;
+  method: "CASH" | "CARD" | "BANK_TRANSFER";
+  createdAt: string;
+  booking: {
+    bookingRef: string;
+    guestName: string;
+    room: { roomNumber: string };
+  };
+}
+
+export interface CategoryBreakdown {
+  id: string;
+  name: string;
+  total: number;
+  occupied: number;
+}
+
+// 🆕 The actual shape of ONE outstanding booking entry
+export interface OutstandingBookingPreview {
+  id: string;
+  bookingRef: string;
+  guestName: string;
+  guestPhone: string;
+  balanceRemaining: number;
+}
+
 export interface DashboardOverviewResponse {
   kpis: DashboardKpis;
   roomStatus: RoomStatusBreakdown;
   frontDeskFeed: FrontDeskFeed;
+  recentPayments: RecentPayment[];
+  categoryBreakdown: CategoryBreakdown[];
+  outstandingBookings: OutstandingBookingPreview[];
 }

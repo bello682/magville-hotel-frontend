@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Plus } from "lucide-react";
+import { useEffect, useState, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Plus, Loader2, AlertCircle } from "lucide-react";
 import RoomsTabs, { RoomsTab } from "../rooms/RoomsTabs";
 import RoomsTable from "../rooms/RoomsTable";
 import CategoriesGrid from "../rooms/CategoriesGrid";
@@ -10,154 +11,87 @@ import CreateCategoryModal, {
   NewCategoryFormValues,
 } from "../rooms/CreateCategoryModal";
 import RoomDetailModal from "../rooms/RoomDetailModal";
-import { Room, RoomCategory, RoomStatus } from "../../types/room";
-
-// 🔧 Mock data matching your controller response shapes
-const MOCK_CATEGORIES: RoomCategory[] = [
-  {
-    id: "c1",
-    name: "Executive Suite",
-    description: "Spacious room with king-size bed and city view.",
-    basePrice: 55000,
-    capacity: 2,
-    roomCount: 2,
-  },
-  {
-    id: "c2",
-    name: "Ocean View",
-    description: "Premium suite facing the water, private balcony.",
-    basePrice: 75000,
-    capacity: 3,
-    roomCount: 1,
-  },
-];
-
-const MOCK_ROOMS: Room[] = [
-  {
-    id: "r1",
-    roomNumber: "204",
-    categoryId: "c1",
-    category: MOCK_CATEGORIES[0],
-    pricePerNight: 55000,
-    description: "First floor, quiet corner room.",
-    status: "AVAILABLE",
-    images: [
-      "https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=800",
-    ],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: "r2",
-    roomNumber: "112",
-    categoryId: "c1",
-    category: MOCK_CATEGORIES[0],
-    pricePerNight: 55000,
-    description: null,
-    status: "OCCUPIED",
-    images: [],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: "r3",
-    roomNumber: "301",
-    categoryId: "c2",
-    category: MOCK_CATEGORIES[1],
-    pricePerNight: 75000,
-    description: "Ocean-facing room with balcony.",
-    status: "MAINTENANCE",
-    images: [
-      "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800",
-      "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800",
-    ],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
+import { Room, RoomStatus } from "../../types/room";
+import { RootState, AppDispatch } from "@/store/store";
+import {
+  fetchCategories,
+  createCategoryAdmin,
+  resetCategoryCreate,
+  fetchAdminRooms,
+  fetchRoomById,
+  clearRoomDetail,
+  saveRoomAdmin,
+  resetRoomSave,
+} from "@/store/redux/actions/adminAction/roomAdminActions";
 
 export default function RoomsPage() {
-  const [activeTab, setActiveTab] = useState<RoomsTab>("rooms");
-  const [rooms, setRooms] = useState<Room[]>(MOCK_ROOMS);
-  const [categories, setCategories] = useState<RoomCategory[]>(MOCK_CATEGORIES);
-  const [statusFilter, setStatusFilter] = useState<RoomStatus | "ALL">("ALL");
+  const dispatch = useDispatch<AppDispatch>();
+  const {
+    categories,
+    categoriesLoading,
+    categoryCreateLoading,
+    categoryCreateSuccess,
+    categoryCreateError,
+    rooms,
+    roomsLoading,
+    roomsError,
+    detail: detailRoom,
+    saveLoading,
+    saveSuccess,
+    saveError,
+  } = useSelector((state: RootState) => state.roomAdmin);
 
-  const [detailRoom, setDetailRoom] = useState<Room | null>(null);
+  const [activeTab, setActiveTab] = useState<RoomsTab>("rooms");
+  const [statusFilter, setStatusFilter] = useState<RoomStatus | "ALL">("ALL");
+  const [detailRoomId, setDetailRoomId] = useState<string | null>(null);
   const [editingRoom, setEditingRoom] = useState<Room | null>(null);
   const [isRoomFormOpen, setIsRoomFormOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
-  const [actionLoading, setActionLoading] = useState(false);
 
-  const filteredRooms = useMemo(() => {
-    return rooms.filter(
-      (r) => statusFilter === "ALL" || r.status === statusFilter,
+  useEffect(() => {
+    dispatch(fetchCategories());
+    dispatch(fetchAdminRooms());
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(
+      fetchAdminRooms(
+        statusFilter !== "ALL" ? { status: statusFilter } : undefined,
+      ),
     );
-  }, [rooms, statusFilter]);
+  }, [statusFilter, dispatch]);
 
-  // 🔧 Replace bodies with real fetch calls later
-  const handleSubmitRoom = (values: RoomFormValues) => {
-    setActionLoading(true);
-    setTimeout(() => {
-      const category = categories.find((c) => c.id === values.categoryId)!;
-      // Simulated upload: in real integration, upload newFiles to Cloudinary via backend, get URLs back
-      const uploadedUrls = values.newFiles.map(
-        (f) => URL.createObjectURL(f), // placeholder preview only — replace with real upload response
-      );
+  useEffect(() => {
+    if (detailRoomId) {
+      dispatch(fetchRoomById(detailRoomId));
+    } else {
+      dispatch(clearRoomDetail());
+    }
+  }, [detailRoomId, dispatch]);
 
-      if (editingRoom) {
-        setRooms((prev) =>
-          prev.map((r) =>
-            r.id === editingRoom.id
-              ? {
-                  ...r,
-                  roomNumber: values.roomNumber,
-                  categoryId: values.categoryId,
-                  category,
-                  pricePerNight: Number(values.pricePerNight),
-                  description: values.description || null,
-                  status: values.status,
-                  images: [...values.existingImages, ...uploadedUrls],
-                }
-              : r,
-          ),
-        );
-      } else {
-        const newRoom: Room = {
-          id: String(Date.now()),
-          roomNumber: values.roomNumber,
-          categoryId: values.categoryId,
-          category,
-          pricePerNight: Number(values.pricePerNight),
-          description: values.description || null,
-          status: values.status,
-          images: uploadedUrls,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
-        setRooms((prev) => [newRoom, ...prev]);
-      }
-
-      setActionLoading(false);
+  useEffect(() => {
+    if (saveSuccess) {
       setIsRoomFormOpen(false);
       setEditingRoom(null);
-    }, 600);
+      dispatch(resetRoomSave());
+    }
+  }, [saveSuccess, dispatch]);
+
+  useEffect(() => {
+    if (categoryCreateSuccess) {
+      setIsCategoryModalOpen(false);
+      dispatch(resetCategoryCreate());
+    }
+  }, [categoryCreateSuccess, dispatch]);
+
+  const filteredRooms = useMemo(() => rooms, [rooms]); // status filtering now happens server-side
+
+  const handleSubmitRoom = (values: RoomFormValues) => {
+    dispatch(saveRoomAdmin(values, editingRoom?.id || null));
   };
 
   const handleSubmitCategory = (values: NewCategoryFormValues) => {
-    setActionLoading(true);
-    setTimeout(() => {
-      const newCategory: RoomCategory = {
-        id: String(Date.now()),
-        name: values.name,
-        description: values.description || null,
-        basePrice: Number(values.basePrice),
-        capacity: Number(values.capacity) || 2,
-        roomCount: 0,
-      };
-      setCategories((prev) => [newCategory, ...prev]);
-      setActionLoading(false);
-      setIsCategoryModalOpen(false);
-    }, 600);
+    dispatch(createCategoryAdmin(values));
   };
 
   return (
@@ -186,17 +120,40 @@ export default function RoomsPage() {
 
       <RoomsTabs activeTab={activeTab} onChange={setActiveTab} />
 
+      {saveError && (
+        <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-500 text-sm rounded-xl flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0" /> {saveError}
+        </div>
+      )}
+
       {activeTab === "rooms" ? (
-        <RoomsTable
-          rooms={filteredRooms}
-          statusFilter={statusFilter}
-          onStatusFilterChange={setStatusFilter}
-          onViewDetail={setDetailRoom}
-          onEdit={(room) => {
-            setEditingRoom(room);
-            setIsRoomFormOpen(true);
-          }}
-        />
+        roomsLoading ? (
+          <div className="flex flex-col items-center justify-center py-16 gap-3">
+            <Loader2 className="w-7 h-7 animate-spin text-amber-500" />
+            <p className="text-xs uppercase tracking-widest text-slate-400 dark:text-slate-500">
+              Loading rooms...
+            </p>
+          </div>
+        ) : roomsError ? (
+          <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 text-sm rounded-xl flex items-center gap-3">
+            <AlertCircle className="w-5 h-5 shrink-0" /> {roomsError}
+          </div>
+        ) : (
+          <RoomsTable
+            rooms={filteredRooms}
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+            onViewDetail={(room) => setDetailRoomId(room.id)}
+            onEdit={(room) => {
+              setEditingRoom(room);
+              setIsRoomFormOpen(true);
+            }}
+          />
+        )
+      ) : categoriesLoading ? (
+        <div className="flex flex-col items-center justify-center py-16 gap-3">
+          <Loader2 className="w-7 h-7 animate-spin text-amber-500" />
+        </div>
       ) : (
         <CategoriesGrid
           categories={categories}
@@ -213,19 +170,24 @@ export default function RoomsPage() {
         onSubmit={handleSubmitRoom}
         categories={categories}
         editingRoom={editingRoom}
-        loading={actionLoading}
+        loading={saveLoading}
       />
 
       <CreateCategoryModal
         isOpen={isCategoryModalOpen}
         onClose={() => setIsCategoryModalOpen(false)}
         onSubmit={handleSubmitCategory}
-        loading={actionLoading}
+        loading={categoryCreateLoading}
       />
+      {categoryCreateError && (
+        <p className="text-red-500 text-xs text-center">
+          {categoryCreateError}
+        </p>
+      )}
 
       <RoomDetailModal
-        isOpen={!!detailRoom}
-        onClose={() => setDetailRoom(null)}
+        isOpen={!!detailRoomId}
+        onClose={() => setDetailRoomId(null)}
         room={detailRoom}
       />
     </div>

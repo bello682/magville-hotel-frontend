@@ -3,14 +3,18 @@ import { roomReducer } from "./redux/reducers/roomReducer";
 import { reservationReducer } from "./redux/reducers/reservationReducer";
 import { dashboardReducer } from "./redux/reducers/adminReducer/dashboardReducer";
 import { bookingReducer } from "./redux/reducers/adminReducer/bookingReducer";
-import { roomLookupReducer } from "./redux/reducers/adminReducer/roomLookupReducer";
+import { roomAdminReducer } from "./redux/reducers/adminReducer/roomAdminReducer";
+import { paymentReducer } from "./redux/reducers/adminReducer/paymentReducer";
+import { paymentBookingSearchReducer } from "./redux/reducers/adminReducer/paymentBookingSearchReducer";
 
 const rootReducer = combineReducers({
   public: roomReducer,
   reservation: reservationReducer,
   dashboard: dashboardReducer,
   adminBookings: bookingReducer,
-  roomLookup: roomLookupReducer,
+  roomAdmin: roomAdminReducer,
+  payments: paymentReducer,
+  paymentBookingSearch: paymentBookingSearchReducer,
 });
 
 export const store = configureStore({
