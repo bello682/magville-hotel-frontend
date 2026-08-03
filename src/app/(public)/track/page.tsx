@@ -24,6 +24,7 @@ import {
 import { trackReservation } from "../../../store/redux/actions/publicActions";
 import { RootState } from "../../../store/store";
 import GuestReceiptModal from "@/components/GuestReceiptModal";
+import { api } from "@/store/services/api";
 
 function TrackBookingPage() {
   const dispatch = useDispatch<any>();
@@ -53,8 +54,8 @@ function TrackBookingPage() {
   // }, []);
 
   useEffect(() => {
-    axios
-      .get(`${process.env.NEXT_PUBLIC_API_URL}/settings/public`)
+    api
+      .get("/settings/public")
       .then((response) => {
         setHotelSettings(response.data?.data?.settings);
       })
