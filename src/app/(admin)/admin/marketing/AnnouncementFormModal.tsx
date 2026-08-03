@@ -115,16 +115,6 @@ export default function AnnouncementFormModal({
           </div>
 
           <div>
-            {/* <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1.5">
-              Image URL
-            </label>
-            <input
-              type="text"
-              value={form.imageUrl}
-              onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
-              placeholder="https://..."
-              className={inputClass}
-            /> */}
             <ImageUrlOrUploadInput
               label="Image"
               value={form.imageUrl}

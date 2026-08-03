@@ -84,18 +84,6 @@ export default function BulkEmailComposer({
         </div>
 
         <div>
-          {/* <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1.5">
-            Banner Image URL (optional)
-          </label>
-          <input
-            type="text"
-            value={form.bannerImageUrl}
-            onChange={(e) =>
-              setForm({ ...form, bannerImageUrl: e.target.value })
-            }
-            placeholder="https://..."
-            className={inputClass}
-          /> */}
           <ImageUrlOrUploadInput
             label="Banner Image (optional)"
             value={form.bannerImageUrl}
