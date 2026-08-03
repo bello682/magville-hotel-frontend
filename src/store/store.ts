@@ -10,6 +10,7 @@ import { marketingReducer } from "./redux/reducers/adminReducer/marketingReducer
 import { staffReducer } from "./redux/reducers/adminReducer/staffReducer";
 import { guestReducer } from "./redux/reducers/adminReducer/guestReducer";
 import { settingsReducer } from "./redux/reducers/adminReducer/settingsReducer";
+import { housekeepingReducer } from "./redux/reducers/adminReducer/housekeepingReducer";
 
 const rootReducer = combineReducers({
   public: roomReducer,
@@ -23,6 +24,7 @@ const rootReducer = combineReducers({
   staff: staffReducer,
   guests: guestReducer,
   settings: settingsReducer,
+  housekeeping: housekeepingReducer,
 });
 
 export const store = configureStore({

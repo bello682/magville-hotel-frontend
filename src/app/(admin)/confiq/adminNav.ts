@@ -105,12 +105,12 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
     icon: BedDouble,
     roles: ["GENERAL_MANAGER", "MANAGER"],
   },
-  // {
-  //   name: "Housekeeping",
-  //   href: "/admin/housekeeping",
-  //   icon: Sparkles,
-  //   roles: ["GENERAL_MANAGER", "MANAGER", "RECEPTIONIST"],
-  // },
+  {
+    name: "Housekeeping",
+    href: "/admin/housekeeping",
+    icon: Sparkles,
+    roles: ["GENERAL_MANAGER", "MANAGER", "RECEPTIONIST"],
+  },
   // {
   //   name: "Inventory",
   //   href: "/admin/inventory",
