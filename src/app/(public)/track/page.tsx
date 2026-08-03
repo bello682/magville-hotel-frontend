@@ -28,6 +28,7 @@ function TrackBookingPage() {
   const dispatch = useDispatch<any>();
   const [reference, setReference] = useState("");
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
+  const [hotelSettings, setHotelSettings] = useState<any>(null);
 
   const searchParams = useSearchParams();
 
@@ -42,6 +43,13 @@ function TrackBookingPage() {
   const { currentReservation, loading, error } = useSelector(
     (state: RootState) => state.reservation,
   );
+
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings/public`)
+      .then((res) => res.json())
+      .then((data) => setHotelSettings(data?.data?.settings))
+      .catch(() => {});
+  }, []);
 
   // Payment & Next-Steps Instructions based on Booking Status
   const getPaymentDirections = () => {
@@ -60,16 +68,9 @@ function TrackBookingPage() {
                 payment to our official account:
               </p>
               <div className="bg-black/40 p-3 rounded border border-white/10 font-mono text-xs space-y-1 text-white">
-                <div>
-                  <span className="text-muted">Bank:</span> Zenith Bank
-                </div>
-                <div>
-                  <span className="text-muted">Account Name:</span> Magville
-                  Hotel & Resort
-                </div>
-                <div>
-                  <span className="text-muted">Account Number:</span> 1234567890
-                </div>
+                <div>Bank: {hotelSettings?.bankName || "—"}</div>
+                <div>Account Name: {hotelSettings?.accountName || "—"}</div>
+                <div>Account Number: {hotelSettings?.accountNumber || "—"}</div>
               </div>
 
               {/* Reference & WhatsApp Contact Details */}
@@ -83,12 +84,12 @@ function TrackBookingPage() {
                 <p>
                   Send receipt via WhatsApp:{" "}
                   <a
-                    href={`https://wa.me/2348134897802?text=Hello%2C%20I%20have%20made%20payment%20for%20my%20reservation%20ref%20${currentReservation?.bookingRef}`}
+                    href={`https://wa.me/${hotelSettings?.whatsappNumber}?text=Hello%2C%20I%20have%20made%20payment%20for%20my%20reservation%20ref%20${currentReservation?.bookingRef}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-accent underline font-semibold hover:brightness-125 transition-all"
                   >
-                    +234 813 765 0764
+                    {hotelSettings?.whatsappNumber}
                   </a>
                 </p>
               </div>
@@ -109,7 +110,7 @@ function TrackBookingPage() {
                 phone or contact desk via WhatsApp.
               </p>
               <a
-                href={`https://wa.me/2348134897802?text=Hello%2C%20I%20am%20currently%20checked%20in%20with%20ref%20${currentReservation?.bookingRef}`}
+                href={`https://wa.me/${hotelSettings?.whatsappNumber}?text=Hello%2C%20I%20am%20currently%20checked%20in%20with%20ref%20${currentReservation?.bookingRef}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-block text-accent underline font-semibold hover:brightness-125 transition-all pt-1"
@@ -147,7 +148,7 @@ function TrackBookingPage() {
                 please contact our concierge desk via WhatsApp.
               </p>
               <a
-                href={`https://wa.me/2348134897802?text=Hello%2C%20I%20have%20an%20inquiry%20regarding%20my%20cancelled%2Frejected%20reservation%20ref%20${currentReservation?.bookingRef}`}
+                href={`https://wa.me/${hotelSettings?.whatsappNumber}?text=Hello%2C%20I%20have%20an%20inquiry%20regarding%20my%20cancelled%2Frejected%20reservation%20ref%20${currentReservation?.bookingRef}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-block text-accent underline font-semibold hover:brightness-125 transition-all pt-1"

@@ -1,83 +1,72 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Loader2, AlertCircle } from "lucide-react";
 import ConfirmActionModal from "../bookings/ConfirmActionModal";
 import ChangeRoleModal from "../staff/ChangeRoleModal";
 import StaffTable from "../staff/StaffTable";
-import { StaffMember, StaffRole } from "../../types/staff";
-
-// 🔧 Mock data — replace with GET /api/v1/staff
-const MOCK_STAFF: StaffMember[] = [
-  {
-    id: "u1",
-    name: "Bello Tayo",
-    email: "belloadetayo14@gmail.com",
-    role: "GENERAL_MANAGER",
-    isVerified: true,
-    isActive: true,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "u2",
-    name: "Grace Adebayo",
-    email: "grace@magville.com",
-    role: "MANAGER",
-    isVerified: true,
-    isActive: true,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "u3",
-    name: "Tunde Okafor",
-    email: "tunde@magville.com",
-    role: "RECEPTIONIST",
-    isVerified: true,
-    isActive: false,
-    createdAt: new Date().toISOString(),
-  },
-];
-
-// 🔧 Replace with actual logged-in user id (decode from token / stored user object)
-const CURRENT_USER_ID = "u1";
+import { StaffRole } from "../../types/staff";
+import { RootState, AppDispatch } from "@/store/store";
+import { useAdminUser } from "../../hooks/useAdminUser";
+import { useAdminToast } from "../../context/ToastContext";
+import { useState } from "react";
+import {
+  fetchStaff,
+  updateStaffRoleAdmin,
+  updateStaffStatusAdmin,
+} from "@/store/redux/actions/adminAction/staffActions";
+import { StaffMember } from "../../types/staff";
 
 export default function StaffPage() {
-  const [staff, setStaff] = useState<StaffMember[]>(MOCK_STAFF);
+  const dispatch = useDispatch<AppDispatch>();
+  const currentUser = useAdminUser();
+  const { showToast } = useAdminToast();
+
+  const {
+    list: staff,
+    listLoading,
+    listError,
+    actionLoadingId,
+    actionError,
+  } = useSelector((state: RootState) => state.staff);
+
   const [roleModalStaff, setRoleModalStaff] = useState<StaffMember | null>(
     null,
   );
   const [statusModalStaff, setStatusModalStaff] = useState<StaffMember | null>(
     null,
   );
-  const [actionLoading, setActionLoading] = useState(false);
 
-  // 🔧 Replace with PATCH /api/v1/staff/:id/role
+  useEffect(() => {
+    dispatch(fetchStaff());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (actionError) showToast("error", "Action Failed", actionError);
+  }, [actionError]);
+
   const handleChangeRole = (newRole: StaffRole) => {
     if (!roleModalStaff) return;
-    setActionLoading(true);
-    setTimeout(() => {
-      setStaff((prev) =>
-        prev.map((s) =>
-          s.id === roleModalStaff.id ? { ...s, role: newRole } : s,
-        ),
-      );
-      setActionLoading(false);
-      setRoleModalStaff(null);
-    }, 500);
+    dispatch(updateStaffRoleAdmin(roleModalStaff.id, newRole));
+    showToast(
+      "success",
+      "Role Updated",
+      `${roleModalStaff.name} is now ${newRole.replace("_", " ")}`,
+    );
+    setRoleModalStaff(null);
   };
 
-  // 🔧 Replace with PATCH /api/v1/staff/:id/status
   const handleToggleStatus = () => {
     if (!statusModalStaff) return;
-    setActionLoading(true);
-    setTimeout(() => {
-      setStaff((prev) =>
-        prev.map((s) =>
-          s.id === statusModalStaff.id ? { ...s, isActive: !s.isActive } : s,
-        ),
-      );
-      setActionLoading(false);
-      setStatusModalStaff(null);
-    }, 500);
+    const newStatus = !statusModalStaff.isActive;
+    dispatch(updateStaffStatusAdmin(statusModalStaff.id, newStatus));
+    showToast(
+      "success",
+      newStatus ? "Account Activated" : "Account Deactivated",
+      statusModalStaff.name,
+    );
+    setStatusModalStaff(null);
   };
 
   return (
@@ -91,26 +80,39 @@ export default function StaffPage() {
         </h1>
       </div>
 
-      <StaffTable
-        staff={staff}
-        currentUserId={CURRENT_USER_ID}
-        onChangeRole={setRoleModalStaff}
-        onToggleStatus={setStatusModalStaff}
-      />
+      {listLoading ? (
+        <div className="flex flex-col items-center justify-center py-16 gap-3">
+          <Loader2 className="w-7 h-7 animate-spin text-amber-500" />
+          <p className="text-xs uppercase tracking-widest text-slate-400 dark:text-slate-500">
+            Loading staff accounts...
+          </p>
+        </div>
+      ) : listError ? (
+        <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 text-sm rounded-xl flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 shrink-0" /> {listError}
+        </div>
+      ) : (
+        <StaffTable
+          staff={staff}
+          currentUserId={currentUser?.id || ""}
+          onChangeRole={setRoleModalStaff}
+          onToggleStatus={setStatusModalStaff}
+        />
+      )}
 
       <ChangeRoleModal
         isOpen={!!roleModalStaff}
         onClose={() => setRoleModalStaff(null)}
         onConfirm={handleChangeRole}
         staff={roleModalStaff}
-        loading={actionLoading}
+        loading={actionLoadingId === roleModalStaff?.id}
       />
 
       <ConfirmActionModal
         isOpen={!!statusModalStaff}
         onClose={() => setStatusModalStaff(null)}
         onConfirm={handleToggleStatus}
-        loading={actionLoading}
+        loading={actionLoadingId === statusModalStaff?.id}
         tone={statusModalStaff?.isActive ? "red" : "emerald"}
         title={
           statusModalStaff?.isActive
