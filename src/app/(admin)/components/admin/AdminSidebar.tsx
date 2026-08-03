@@ -115,6 +115,7 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
 
   const handleLogout = () => {
     localStorage.removeItem("adminToken");
+    localStorage.removeItem("lastAdminPath");
     window.location.href = "/auth/login";
   };
 

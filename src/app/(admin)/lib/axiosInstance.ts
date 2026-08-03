@@ -38,7 +38,10 @@ adminAxios.interceptors.response.use(
         const isAuthPage = window.location.pathname.startsWith("/auth");
 
         if (!isAuthPage) {
-          window.location.href = "/auth/login"; // Absolute path
+          // window.location.href = "/auth/login"; // Absolute path
+
+          // Trigger custom event so AdminAuthGuard catches it and opens the modal
+          window.dispatchEvent(new Event("admin-session-expired"));
         }
       }
     }

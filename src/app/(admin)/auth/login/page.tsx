@@ -39,7 +39,13 @@ export default function LoginAdminPage() {
       if (res?.token) {
         localStorage.setItem("adminToken", res.token);
       }
-      router.push("/admin");
+      // router.push("/admin");
+
+      // Check for last saved route or fallback to default /admin
+      const redirectPath = localStorage.getItem("lastAdminPath") || "/admin";
+      localStorage.removeItem("lastAdminPath"); // Clean up key after reading
+
+      router.push(redirectPath);
     } catch (err: any) {
       // err is the string returned from rejectWithValue(getErrorMessage(error))
       setError(
