@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { Suspense } from "react";
+import axios from "axios";
 import {
   Search,
   Loader2,
@@ -44,11 +45,28 @@ function TrackBookingPage() {
     (state: RootState) => state.reservation,
   );
 
+  // useEffect(() => {
+  //   fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings/public`)
+  //     .then((res) => res.json())
+  //     .then((data) => setHotelSettings(data?.data?.settings))
+  //     .catch(() => {});
+  // }, []);
+
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings/public`)
-      .then((res) => res.json())
-      .then((data) => setHotelSettings(data?.data?.settings))
-      .catch(() => {});
+    axios
+      .get(`${process.env.NEXT_PUBLIC_API_URL}/settings/public`, {
+        headers: {
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          Pragma: "no-cache",
+          Expires: "0",
+        },
+      })
+      .then((response) => {
+        setHotelSettings(response.data?.data?.settings);
+      })
+      .catch((error) => {
+        console.error("Error fetching public settings:", error);
+      });
   }, []);
 
   // Payment & Next-Steps Instructions based on Booking Status
