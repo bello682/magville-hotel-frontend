@@ -68,12 +68,12 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
     icon: Wallet,
     roles: ["GENERAL_MANAGER", "MANAGER", "RECEPTIONIST"],
   },
-  {
-    name: "Marketing",
-    href: "/admin/marketing",
-    icon: Megaphone,
-    roles: ["GENERAL_MANAGER", "MANAGER"],
-  },
+  // {
+  //   name: "Marketing",
+  //   href: "/admin/marketing",
+  //   icon: Megaphone,
+  //   roles: ["GENERAL_MANAGER", "MANAGER"],
+  // },
   // {
   //   name: "Reports & Analytics",
   //   href: "/admin/reports",

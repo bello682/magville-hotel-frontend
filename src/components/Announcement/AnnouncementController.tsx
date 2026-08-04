@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import AnnouncementModal from "./AnnouncementModal";
 import AnnouncementBanner from "./AnnouncementBanner";
+import { api } from "@/store/services/api";
 
 interface Announcement {
   id: string;
@@ -23,10 +24,10 @@ export default function AnnouncementController() {
 
   // Fetch the latest active announcement once
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/announcements/public`)
-      .then((res) => res.json())
-      .then((data) => {
-        const latest = data?.data?.announcements?.[0];
+    api
+      .get("/announcements/public")
+      .then((res) => {
+        const latest = res.data?.data?.announcements?.[0];
         if (latest) setAnnouncement(latest);
       })
       .catch(() => {

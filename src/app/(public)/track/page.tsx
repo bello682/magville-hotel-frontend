@@ -505,14 +505,36 @@ function TrackBookingPage() {
               </>
             )}
             {/* only shown when checked out AND no review exists yet: */}
-            {statusUpper === "CHECKED_OUT" &&
+            {/* {statusUpper === "CHECKED_OUT" &&
               !currentReservation?.hasReview &&
               !reviewJustSubmitted && (
                 <GuestReviewForm
                   bookingRef={currentReservation.bookingRef}
                   onSubmitted={() => setReviewJustSubmitted(true)}
                 />
-              )}
+              )} */}
+
+            {statusUpper === "CHECKED_OUT" && (
+              <div className="pt-4 border-t border-white/10">
+                {currentReservation?.hasReview ? (
+                  <div className="flex items-center gap-2.5 p-4 rounded border bg-emerald-500/10 border-emerald-500/30 text-emerald-300">
+                    <CheckCircle2 className="w-5 h-5 shrink-0" />
+                    <p className="text-sm">
+                      Thank you for your review of this stay!
+                    </p>
+                  </div>
+                ) : (
+                  <GuestReviewForm
+                    bookingRef={currentReservation.bookingRef}
+                    onSubmitted={() => {
+                      // 🔧 Re-fetch the booking so hasReview reflects real backend state,
+                      // instead of relying on a local flag that resets on refresh
+                      dispatch(trackReservation(currentReservation.bookingRef));
+                    }}
+                  />
+                )}
+              </div>
+            )}
             {/* 💳 Payment & Next Steps Instructions */}
             {(() => {
               const direction = getPaymentDirections();
