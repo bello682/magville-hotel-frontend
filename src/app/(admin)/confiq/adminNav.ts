@@ -48,18 +48,18 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
     icon: BedDouble,
     roles: ["GENERAL_MANAGER", "MANAGER"],
   },
-  // {
-  //   name: "Housekeeping",
-  //   href: "/admin/housekeeping",
-  //   icon: Sparkles,
-  //   roles: ["GENERAL_MANAGER", "MANAGER", "RECEPTIONIST"],
-  // },
-  // {
-  //   name: "Inventory",
-  //   href: "/admin/inventory",
-  //   icon: Package,
-  //   roles: ["GENERAL_MANAGER", "MANAGER"],
-  // },
+  {
+    name: "Housekeeping",
+    href: "/admin/housekeeping",
+    icon: Sparkles,
+    roles: ["GENERAL_MANAGER", "MANAGER", "RECEPTIONIST"],
+  },
+  {
+    name: "Inventory",
+    href: "/admin/inventory",
+    icon: Package,
+    roles: ["GENERAL_MANAGER", "MANAGER"],
+  },
 
   // FINANCE & SALES
   {
@@ -68,18 +68,18 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
     icon: Wallet,
     roles: ["GENERAL_MANAGER", "MANAGER", "RECEPTIONIST"],
   },
-  // {
-  //   name: "Marketing",
-  //   href: "/admin/marketing",
-  //   icon: Megaphone,
-  //   roles: ["GENERAL_MANAGER", "MANAGER"],
-  // },
-  // {
-  //   name: "Reports & Analytics",
-  //   href: "/admin/reports",
-  //   icon: BarChart3,
-  //   roles: ["GENERAL_MANAGER", "MANAGER"],
-  // },
+  {
+    name: "Marketing",
+    href: "/admin/marketing",
+    icon: Megaphone,
+    roles: ["GENERAL_MANAGER", "MANAGER"],
+  },
+  {
+    name: "Reports & Analytics",
+    href: "/admin/reports",
+    icon: BarChart3,
+    roles: ["GENERAL_MANAGER", "MANAGER"],
+  },
 
   // MANAGEMENT & SYSTEM
   {
@@ -88,12 +88,12 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
     icon: Users,
     roles: ["GENERAL_MANAGER"],
   },
-  // {
-  //   name: "Guest Reviews",
-  //   href: "/admin/reviews",
-  //   icon: Star,
-  //   roles: ["GENERAL_MANAGER", "MANAGER"],
-  // },
+  {
+    name: "Guest Reviews",
+    href: "/admin/reviews",
+    icon: Star,
+    roles: ["GENERAL_MANAGER", "MANAGER"],
+  },
   {
     name: "Settings",
     href: "/admin/settings",
