@@ -174,7 +174,8 @@ export default function ReservationModal({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-          className="relative w-full max-w-4xl bg-gradient-to-b from-[#121212] to-dark border border-white/15 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] overflow-hidden text-main z-10 grid grid-cols-1 lg:grid-cols-12"
+          // className="relative w-full max-w-4xl bg-gradient-to-b from-[#121212] to-dark border border-white/15 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] overflow-hidden text-main z-10 grid grid-cols-1 lg:grid-cols-12"
+          className="relative w-full max-w-4xl max-h-[90vh] bg-gradient-to-b from-[#121212] to-dark border border-white/15 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] overflow-hidden text-main z-10 grid grid-cols-1 lg:grid-cols-12 rounded-xl"
         >
           {/* Close Button */}
           <button
@@ -186,7 +187,8 @@ export default function ReservationModal({
           </button>
 
           {/* LEFT SIDE: Room Details & Cost Summary */}
-          <div className="lg:col-span-5 relative min-h-[260px] lg:min-h-full flex flex-col justify-between p-6 lg:p-8 overflow-hidden bg-black/60 border-b lg:border-b-0 lg:border-r border-white/10">
+          {/* <div className="lg:col-span-5 relative min-h-[260px] lg:min-h-full flex flex-col justify-between p-6 lg:p-8 overflow-hidden bg-black/60 border-b lg:border-b-0 lg:border-r border-white/10"> */}
+          <div className="lg:col-span-5 relative min-h-[180px] lg:min-h-full flex flex-col justify-between p-5 lg:p-8 overflow-hidden bg-black/60 border-b lg:border-b-0 lg:border-r border-white/10 shrink-0">
             {/* Optimized Next.js Background Image with Fallback */}
             <div className="absolute inset-0 z-0 opacity-40 transition-all duration-700">
               <Image
@@ -248,7 +250,8 @@ export default function ReservationModal({
           </div>
 
           {/* RIGHT SIDE: Interactive Form & Success Screen */}
-          <div className="lg:col-span-7 p-6 lg:p-8 flex flex-col justify-between">
+          {/* <div className="lg:col-span-7 p-6 lg:p-8 flex flex-col justify-between"> */}
+          <div className="lg:col-span-7 p-5 lg:p-8 flex flex-col justify-between overflow-y-auto max-h-[calc(90vh-180px)] lg:max-h-[90vh]">
             {success ? (
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}

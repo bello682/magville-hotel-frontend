@@ -26,7 +26,8 @@ export default function PaymentReceiptModal({
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm print:hidden">
         <div className="absolute inset-0" onClick={onClose} />
 
-        <div className="relative w-full max-w-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl overflow-hidden transition-colors">
+        {/* <div className="relative w-full max-w-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl overflow-hidden transition-colors"> */}
+        <div className="relative w-full max-w-sm max-h-[90vh] flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl overflow-hidden transition-colors">
           <div className="flex items-center justify-end px-4 py-3">
             <button
               onClick={onClose}
@@ -36,7 +37,8 @@ export default function PaymentReceiptModal({
             </button>
           </div>
 
-          <div className="px-8 pb-8 text-center space-y-5">
+          {/* <div className="px-8 pb-8 text-center space-y-5"> */}
+          <div className="px-8 pb-8 text-center space-y-5 overflow-y-auto">
             <div className="flex flex-col items-center gap-2">
               <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-500">
                 <CheckCircle2 className="w-6 h-6" />

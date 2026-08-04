@@ -106,12 +106,19 @@ export default function RoomDetailModal({
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md overflow-y-auto">
-        <motion.div
+      {/* <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md overflow-y-auto"> */}
+      {/* <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           className="relative w-full max-w-3xl overflow-hidden rounded-3xl bg-white shadow-2xl my-8 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800"
+          > */}
+      <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-4 pt-12 sm:pt-4 bg-black/70 backdrop-blur-md overflow-y-auto">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: 20 }}
+          className="relative w-full max-w-3xl max-h-[85vh] sm:max-h-none overflow-y-auto rounded-3xl bg-white shadow-2xl my-auto sm:my-8 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800"
         >
           {/* Close Button */}
           <button

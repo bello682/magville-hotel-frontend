@@ -136,7 +136,8 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
         `}
       >
         {/* Header Header Label */}
-        <div className="px-6 pt-6 pb-2 shrink-0">
+        {/* <div className="px-6 pt-6 pb-2 shrink-0"> */}
+        <div className="px-6 pt-20 lg:pt-6 pb-2 shrink-0">
           <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">
             Main Navigation
           </p>

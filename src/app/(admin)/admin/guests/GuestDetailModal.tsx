@@ -83,7 +83,11 @@ export default function GuestDetailModal({
               </p>
             </div>
             <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg p-3">
-              <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
+              {/* <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400"> */}
+              <p
+                className="text-xs sm:text-lg font-bold tracking-tighter sm:tracking-normal truncate text-emerald-600 dark:text-emerald-400"
+                title={`₦${guest.totalSpent.toLocaleString()}`}
+              >
                 ₦{guest.totalSpent.toLocaleString()}
               </p>
               <p className="text-[10px] uppercase text-slate-500 dark:text-slate-400">
