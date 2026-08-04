@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { Suspense } from "react";
-import axios from "axios";
 import {
   Search,
   Loader2,
@@ -25,12 +24,14 @@ import { trackReservation } from "../../../store/redux/actions/publicActions";
 import { RootState } from "../../../store/store";
 import GuestReceiptModal from "@/components/GuestReceiptModal";
 import { api } from "@/store/services/api";
+import GuestReviewForm from "./GuestReviewForm";
 
 function TrackBookingPage() {
   const dispatch = useDispatch<any>();
   const [reference, setReference] = useState("");
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
   const [hotelSettings, setHotelSettings] = useState<any>(null);
+  const [reviewJustSubmitted, setReviewJustSubmitted] = useState(false);
 
   const searchParams = useSearchParams();
 
@@ -351,7 +352,6 @@ function TrackBookingPage() {
               </div>
               <div>{getStatusBadge(currentReservation.status)}</div>
             </div>
-
             {/* Main Info Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
               <div className="space-y-1">
@@ -423,7 +423,6 @@ function TrackBookingPage() {
                 </div>
               )}
             </div>
-
             {/* Guest Notes / Special Requests */}
             {bookingNotes && (
               <div className="pt-4 border-t border-white/10 space-y-1 text-xs">
@@ -438,7 +437,6 @@ function TrackBookingPage() {
                 </div>
               </div>
             )}
-
             {/* 🆕 Real message from admin — only rendered if one actually exists */}
             {displayMessage && (
               <div className="pt-4 border-t border-white/10 space-y-1 text-xs">
@@ -457,7 +455,6 @@ function TrackBookingPage() {
                 </div>
               </div>
             )}
-
             {/* 🆕 Outstanding balance notices — only shown when relevant */}
             {currentReservation?.paymentStatus !== "PAID" && (
               <>
@@ -507,7 +504,15 @@ function TrackBookingPage() {
                   )}
               </>
             )}
-
+            {/* only shown when checked out AND no review exists yet: */}
+            {statusUpper === "CHECKED_OUT" &&
+              !currentReservation?.hasReview &&
+              !reviewJustSubmitted && (
+                <GuestReviewForm
+                  bookingRef={currentReservation.bookingRef}
+                  onSubmitted={() => setReviewJustSubmitted(true)}
+                />
+              )}
             {/* 💳 Payment & Next Steps Instructions */}
             {(() => {
               const direction = getPaymentDirections();
@@ -524,7 +529,6 @@ function TrackBookingPage() {
                 </div>
               );
             })()}
-
             {/* Total Amount Footer */}
             {amountToDisplay !== undefined && amountToDisplay !== null && (
               <div className="pt-4 border-t border-white/10 space-y-3">

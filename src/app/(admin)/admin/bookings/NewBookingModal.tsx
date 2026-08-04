@@ -1,8 +1,10 @@
 // src/app/(admin)/components/admin/bookings/NewBookingModal.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Loader2, User, Mail, Phone, Calendar, IdCard } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { fetchAdminRooms } from "@/store/redux/actions/adminAction/roomAdminActions";
 
 export interface NewBookingFormValues {
   roomId: string;
@@ -52,6 +54,13 @@ export default function NewBookingModal({
   loading,
 }: NewBookingModalProps) {
   const [form, setForm] = useState<NewBookingFormValues>(EMPTY_FORM);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (isOpen) {
+      dispatch(fetchAdminRooms() as any);
+    }
+  }, [isOpen, dispatch]);
 
   if (!isOpen) return null;
 

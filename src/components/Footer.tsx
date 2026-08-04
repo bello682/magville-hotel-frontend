@@ -112,16 +112,13 @@ export default function Footer() {
             reserved.
           </p>
           <div className="flex space-x-6">
-            <a href="#" className="hover:text-accent transition-colors">
+            <a href="/policy" className="hover:text-accent transition-colors">
               Privacy Policy
             </a>
-            <a href="#" className="hover:text-accent transition-colors">
+            <a href="/terms" className="hover:text-accent transition-colors">
               Terms of Service
             </a>
-            <a
-              href="/track"
-              className="hover:text-accent transition-colors"
-            >
+            <a href="/track" className="hover:text-accent transition-colors">
               Track Reservation
             </a>
           </div>
