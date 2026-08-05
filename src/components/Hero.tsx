@@ -128,7 +128,7 @@ export default function Hero({ onBookClick }: HeroProps) {
     if (!checkIn || !checkOut) {
       const errorMsg = "Please select both Check-In and Check-Out dates.";
       setFormError(errorMsg);
-      showToast("error", "Search Error", errorMsg);
+      // showToast("error", "Search Error", errorMsg);
       return;
     }
 
@@ -158,10 +158,10 @@ export default function Hero({ onBookClick }: HeroProps) {
       setIsResultsModalOpen(true);
       showToast(
         "success", // 🟢 Fixed: type ("success") comes first
+        "Rooms Available",
         `Found ${availableRooms.length} available room${
           availableRooms.length > 1 ? "s" : ""
         }!`,
-        "success",
       );
     } catch (err: any) {
       const errorMsg =
