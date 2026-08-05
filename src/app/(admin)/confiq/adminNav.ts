@@ -20,6 +20,7 @@ export interface NavItem {
   href: string;
   icon: LucideIcon;
   roles: ("GENERAL_MANAGER" | "MANAGER" | "RECEPTIONIST")[];
+  countKey?: "bookings" | "reviews" | "housekeeping" | "inventory";
 }
 
 export const ADMIN_NAV_ITEMS: NavItem[] = [
@@ -35,6 +36,7 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
     href: "/admin/bookings",
     icon: CalendarCheck,
     roles: ["GENERAL_MANAGER", "MANAGER", "RECEPTIONIST"],
+    countKey: "bookings",
   },
   {
     name: "Guests",
@@ -53,12 +55,14 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
     href: "/admin/housekeeping",
     icon: Sparkles,
     roles: ["GENERAL_MANAGER", "MANAGER", "RECEPTIONIST"],
+    countKey: "housekeeping",
   },
   {
     name: "Inventory",
     href: "/admin/inventory",
     icon: Package,
     roles: ["GENERAL_MANAGER", "MANAGER"],
+    countKey: "inventory",
   },
 
   // FINANCE & SALES
@@ -93,6 +97,7 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
     href: "/admin/reviews",
     icon: Star,
     roles: ["GENERAL_MANAGER", "MANAGER"],
+    countKey: "reviews",
   },
   {
     name: "Settings",

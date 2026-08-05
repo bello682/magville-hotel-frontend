@@ -1,7 +1,16 @@
 // src/app/(admin)/components/admin/guests/GuestDetailModal.tsx
 "use client";
 import { useState, useEffect } from "react";
-import { X, Phone, Mail, IdCard, Crown, Ban, Loader2 } from "lucide-react";
+import {
+  X,
+  Phone,
+  Mail,
+  IdCard,
+  Crown,
+  Ban,
+  Loader2,
+  User,
+} from "lucide-react";
 import { GuestProfile, GuestTag } from "@/app/(admin)/types/guest";
 
 interface GuestDetailModalProps {
@@ -64,7 +73,6 @@ export default function GuestDetailModal({
               </div>
             )}
           </div>
-
           <div className="grid grid-cols-3 gap-3 text-center">
             <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg p-3">
               <p className="text-lg font-bold text-slate-900 dark:text-white">
@@ -101,28 +109,44 @@ export default function GuestDetailModal({
               Guest Tag
             </label>
             <div className="flex gap-2">
-              {(["NONE", "VIP", "BLACKLISTED"] as GuestTag[]).map((t) => (
-                <button
-                  key={t}
-                  onClick={() => setTag(t)}
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold uppercase transition border ${
-                    tag === t
-                      ? t === "VIP"
-                        ? "bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400"
+              {(["NONE", "VIP", "REGULAR", "BLACKLISTED"] as GuestTag[]).map(
+                (t) => {
+                  const isSelected = tag === t;
+                  const toneClass =
+                    t === "VIP"
+                      ? "bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400"
+                      : t === "REGULAR"
+                        ? "bg-sky-500/10 border-sky-500/30 text-sky-600 dark:text-sky-400"
                         : t === "BLACKLISTED"
                           ? "bg-red-500/10 border-red-500/30 text-red-600 dark:text-red-400"
-                          : "bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300"
-                      : "border-slate-200 dark:border-slate-800 text-slate-400 hover:border-slate-300"
-                  }`}
-                >
-                  {t === "VIP" && <Crown className="w-3.5 h-3.5" />}
-                  {t === "BLACKLISTED" && <Ban className="w-3.5 h-3.5" />}
-                  {t === "NONE" ? "None" : t === "VIP" ? "VIP" : "Blacklisted"}
-                </button>
-              ))}
+                          : "bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300";
+
+                  return (
+                    <button
+                      key={t}
+                      onClick={() => setTag(t)}
+                      className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold uppercase transition border ${
+                        isSelected
+                          ? toneClass
+                          : "border-slate-200 dark:border-slate-800 text-slate-400 hover:border-slate-300"
+                      }`}
+                    >
+                      {t === "VIP" && <Crown className="w-3.5 h-3.5" />}
+                      {t === "REGULAR" && <User className="w-3.5 h-3.5" />}
+                      {t === "BLACKLISTED" && <Ban className="w-3.5 h-3.5" />}
+                      {t === "NONE"
+                        ? "None"
+                        : t === "VIP"
+                          ? "VIP"
+                          : t === "REGULAR"
+                            ? "Regular"
+                            : "Blacklisted"}
+                    </button>
+                  );
+                },
+              )}
             </div>
           </div>
-
           <div>
             <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1.5">
               Internal Staff Notes
@@ -135,7 +159,6 @@ export default function GuestDetailModal({
               className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg p-3 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-amber-500/50 resize-none transition"
             />
           </div>
-
           <div>
             <h4 className="text-xs uppercase tracking-wider font-semibold text-slate-400 dark:text-slate-500 mb-2">
               Booking History
@@ -167,7 +190,6 @@ export default function GuestDetailModal({
               </div>
             )}
           </div>
-
           <button
             onClick={() => onSave({ tag, notes })}
             disabled={saving}

@@ -30,6 +30,7 @@ import {
   clearReservationState,
 } from "../store/redux/actions/publicActions";
 import { RootState } from "../store/store";
+import { useAdminToast } from "@/app/(admin)/context/ToastContext";
 
 interface ReservationModalProps {
   isOpen: boolean;
@@ -43,6 +44,7 @@ export default function ReservationModal({
   room,
 }: ReservationModalProps) {
   const dispatch = useDispatch<any>();
+  const { showToast } = useAdminToast();
   const [step, setStep] = useState<1 | 2>(1);
   const searchParams = useSearchParams();
 
@@ -50,6 +52,22 @@ export default function ReservationModal({
   const { loading, error, success, bookingRef } = useSelector(
     (state: RootState) => state.reservation,
   );
+
+  useEffect(() => {
+    if (error) {
+      showToast("error", "Reservation Error", error);
+    }
+  }, [error, showToast]);
+
+  useEffect(() => {
+    if (success && bookingRef) {
+      showToast(
+        "success",
+        "Booking Confirmed",
+        `Reservation submitted successfully! Ref: ${bookingRef}`,
+      );
+    }
+  }, [success, bookingRef, showToast]);
 
   // Formik handles form state and submission
   const formik = useFormik({
@@ -82,8 +100,12 @@ export default function ReservationModal({
 
       try {
         await dispatch(createReservation(payload));
-      } catch (err) {
-        // Handled by Redux
+      } catch (err: any) {
+        showToast(
+          "error",
+          "Submission Failed",
+          err?.message || "Failed to process reservation request.",
+        );
       }
     },
   });
@@ -145,6 +167,13 @@ export default function ReservationModal({
     const errors = await formik.validateForm();
     if (!errors.checkInDate && !errors.checkOutDate) {
       setStep(2);
+    } else {
+      const firstError = errors.checkInDate || errors.checkOutDate;
+      showToast(
+        "warning",
+        "Incomplete Dates",
+        (firstError as string) || "Please fill in all required stay dates.",
+      );
     }
   };
 

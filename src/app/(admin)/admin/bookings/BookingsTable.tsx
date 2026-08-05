@@ -4,6 +4,7 @@
 import { Eye, CheckCircle2, XCircle, LogIn, LogOut } from "lucide-react";
 import { Booking } from "@/app/(admin)/types/booking";
 import BookingStatusBadge from "./BookingStatusBadge";
+import GuestTagBadge from "../guests/GuestTagBadge";
 
 interface BookingsTableProps {
   bookings: Booking[];
@@ -64,6 +65,11 @@ export default function BookingsTable({
                   <p className="text-xs text-slate-400 dark:text-slate-500">
                     {booking.guestPhone}
                   </p>
+                  {booking.guest?.tag && booking.guest.tag !== "NONE" && (
+                    <div className="mt-1">
+                      <GuestTagBadge tag={booking.guest.tag} />
+                    </div>
+                  )}
                 </td>
                 <td className="px-5 py-3.5 text-slate-600 dark:text-slate-400">
                   Room {booking.room.roomNumber}

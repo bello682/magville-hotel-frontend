@@ -226,14 +226,29 @@ function BookingsPageContent() {
         <BookingsTable
           bookings={filteredBookings}
           onViewDetail={(b) => setDetailBookingId(b.id)}
-          onApprove={(b) =>
+          onApprove={(b) => {
+            if (b.guest?.tag === "BLACKLISTED") {
+              showToast(
+                "warning",
+                "Blacklisted Guest",
+                `${b.guestName} is flagged as blacklisted. Review before approving.`,
+              );
+            }
             setConfirmAction({
               bookingId: b.id,
               bookingRef: b.bookingRef,
               guestName: b.guestName,
               type: "approve",
-            })
-          }
+            });
+          }}
+          // onApprove={(b) =>
+          //   setConfirmAction({
+          //     bookingId: b.id,
+          //     bookingRef: b.bookingRef,
+          //     guestName: b.guestName,
+          //     type: "approve",
+          //   })
+          // }
           onReject={(b) => setRejectBookingId(b.id)}
           onCheckIn={(b) =>
             setConfirmAction({

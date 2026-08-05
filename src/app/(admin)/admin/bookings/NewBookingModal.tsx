@@ -2,9 +2,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Loader2, User, Mail, Phone, Calendar, IdCard } from "lucide-react";
+import {
+  X,
+  Loader2,
+  User,
+  Mail,
+  Phone,
+  Calendar,
+  IdCard,
+  AlertTriangle,
+  Crown,
+} from "lucide-react";
 import { useDispatch } from "react-redux";
 import { fetchAdminRooms } from "@/store/redux/actions/adminAction/roomAdminActions";
+import { adminAxios } from "@/app/(admin)/lib/axiosInstance";
 
 export interface NewBookingFormValues {
   roomId: string;
@@ -54,7 +65,35 @@ export default function NewBookingModal({
   loading,
 }: NewBookingModalProps) {
   const [form, setForm] = useState<NewBookingFormValues>(EMPTY_FORM);
+  const [guestTagWarning, setGuestTagWarning] = useState<{
+    tag: string;
+    fullName: string;
+  } | null>(null);
+
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (!form.guestPhone || form.guestPhone.length < 8) {
+      setGuestTagWarning(null);
+      return;
+    }
+    const timeout = setTimeout(async () => {
+      try {
+        const { data } = await adminAxios.get("/guests/check", {
+          params: { phone: form.guestPhone },
+        });
+        const guest = data.data.guest;
+        if (guest && (guest.tag === "BLACKLISTED" || guest.tag === "VIP")) {
+          setGuestTagWarning({ tag: guest.tag, fullName: guest.fullName });
+        } else {
+          setGuestTagWarning(null);
+        }
+      } catch {
+        setGuestTagWarning(null);
+      }
+    }, 500);
+    return () => clearTimeout(timeout);
+  }, [form.guestPhone]);
 
   useEffect(() => {
     if (isOpen) {
@@ -184,6 +223,26 @@ export default function NewBookingModal({
                   className={inputClass}
                 />
               </div>
+              {guestTagWarning && (
+                <div
+                  className={`flex items-center gap-2.5 p-3 rounded-lg border text-xs ${
+                    guestTagWarning.tag === "BLACKLISTED"
+                      ? "bg-red-500/10 border-red-500/30 text-red-600 dark:text-red-400"
+                      : "bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400"
+                  }`}
+                >
+                  {guestTagWarning.tag === "BLACKLISTED" ? (
+                    <AlertTriangle className="w-4 h-4 shrink-0" />
+                  ) : (
+                    <Crown className="w-4 h-4 shrink-0" />
+                  )}
+                  <span>
+                    {guestTagWarning.tag === "BLACKLISTED"
+                      ? `Warning: ${guestTagWarning.fullName} is flagged as BLACKLISTED. Review guest history before proceeding.`
+                      : `${guestTagWarning.fullName} is a VIP guest — consider special accommodations.`}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 

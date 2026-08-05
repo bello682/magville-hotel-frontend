@@ -24,6 +24,7 @@ import {
 import AvailableRoomsModal from "@/context/AvailableRoomsModal";
 import ReservationModal from "@/components/ReservationModal";
 import { useModal } from "@/context/ModalContext";
+import { useAdminToast } from "@/app/(admin)/context/ToastContext";
 
 const HERO_SLIDES = [
   {
@@ -76,6 +77,8 @@ export default function Hero({ onBookClick }: HeroProps) {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { openModal } = useModal();
+  // 🟢 2. GET SHOWTOAST FROM YOUR CONTEXT
+  const { showToast } = useAdminToast();
 
   const { categories } = useAppSelector((state) => state.public);
   const { loading: availabilityLoading } = useAppSelector(
@@ -121,8 +124,11 @@ export default function Hero({ onBookClick }: HeroProps) {
     e.preventDefault();
     setFormError("");
 
+    // Error 1: Missing Dates
     if (!checkIn || !checkOut) {
-      setFormError("Please select both Check-In and Check-Out dates.");
+      const errorMsg = "Please select both Check-In and Check-Out dates.";
+      setFormError(errorMsg);
+      showToast("error", "Search Error", errorMsg);
       return;
     }
 
@@ -142,16 +148,26 @@ export default function Hero({ onBookClick }: HeroProps) {
         (Array.isArray(responseData) ? responseData : []);
 
       if (!availableRooms || availableRooms.length === 0) {
-        setFormError("No rooms are available for the selected dates.");
+        const emptyMsg = "No rooms are available for the selected dates.";
+        setFormError(emptyMsg);
+        showToast("warning", "No Availability", emptyMsg);
         return;
       }
 
       setAvailableRoomsList(availableRooms);
       setIsResultsModalOpen(true);
-    } catch (err: any) {
-      setFormError(
-        err?.message || err || "Could not check availability. Try again.",
+      showToast(
+        "success", // 🟢 Fixed: type ("success") comes first
+        `Found ${availableRooms.length} available room${
+          availableRooms.length > 1 ? "s" : ""
+        }!`,
+        "success",
       );
+    } catch (err: any) {
+      const errorMsg =
+        err?.message || err || "Could not check availability. Try again.";
+      setFormError(errorMsg);
+      showToast("error", "Availability Check Failed", errorMsg);
     }
   };
 

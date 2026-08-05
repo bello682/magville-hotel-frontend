@@ -7,11 +7,18 @@ import ReservationModal from "@/components/ReservationModal";
 import { ModalProvider, useModal } from "@/context/ModalContext";
 import AnnouncementController from "../../components/Announcement/AnnouncementController";
 
+// 1. Import BOTH the Provider and the Container from the admin folder
+import { AdminToastProvider } from "../(admin)/context/ToastContext";
+import ToastContainer from "../(admin)/context/ToastContainer";
+
 function PublicLayoutInner({ children }: { children: React.ReactNode }) {
   const { isModalOpen, closeModal, selectedRoom, openModal } = useModal();
 
   return (
     <div className="min-h-screen flex flex-col justify-between bg-dark">
+      {/* 2. Place ToastContainer here */}
+      <ToastContainer />
+
       {/* Announcement Controller */}
       <AnnouncementController />
 
@@ -41,8 +48,11 @@ export default function PublicLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ModalProvider>
-      <PublicLayoutInner>{children}</PublicLayoutInner>
-    </ModalProvider>
+    /* 3. Wrap everything inside AdminToastProvider */
+    <AdminToastProvider>
+      <ModalProvider>
+        <PublicLayoutInner>{children}</PublicLayoutInner>
+      </ModalProvider>
+    </AdminToastProvider>
   );
 }

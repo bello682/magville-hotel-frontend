@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Booking } from "@/app/(admin)/types/booking";
 import BookingStatusBadge from "./BookingStatusBadge";
+import GuestTagBadge from "../guests/GuestTagBadge";
 
 interface BookingDetailModalProps {
   isOpen: boolean;
@@ -66,6 +67,9 @@ export default function BookingDetailModal({
               <div className="flex items-center gap-2 text-slate-900 dark:text-white">
                 <User className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                 {booking.guestName}
+                {booking.guest?.tag && booking.guest.tag !== "NONE" && (
+                  <GuestTagBadge tag={booking.guest.tag} />
+                )}
               </div>
               <div className="flex items-center gap-2 text-slate-900 dark:text-white">
                 <Phone className="w-3.5 h-3.5 text-amber-500 shrink-0" />

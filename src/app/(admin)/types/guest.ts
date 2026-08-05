@@ -1,6 +1,6 @@
 // src/app/(admin)/admin/types/guest.ts
 
-export type GuestTag = "NONE" | "VIP" | "BLACKLISTED";
+export type GuestTag = "NONE" | "VIP" | "REGULAR" | "BLACKLISTED";
 
 export interface GuestListItem {
   id: string;

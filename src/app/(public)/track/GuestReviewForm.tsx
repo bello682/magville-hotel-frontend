@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Star, Loader2, CheckCircle2 } from "lucide-react";
 import { api } from "@/store/services/api";
+import { useAdminToast } from "@/app/(admin)/context/ToastContext";
 
 interface GuestReviewFormProps {
   bookingRef: string;
@@ -19,10 +20,13 @@ export default function GuestReviewForm({
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
+  const { showToast } = useAdminToast();
 
   const handleSubmit = async () => {
     if (rating === 0) {
-      setError("Please select a rating");
+      const errMsg = "Please select a star rating before submitting.";
+      setError(errMsg);
+      showToast("warning", "Rating Required", errMsg);
       return;
     }
     setSubmitting(true);
@@ -35,13 +39,15 @@ export default function GuestReviewForm({
       });
       const data = res.data;
       setSubmitted(true);
+      showToast("success", "Review Submitted", "Thank you for your feedback!");
       onSubmitted();
     } catch (err: any) {
-      setError(
+      const errMsg =
         err.response?.data?.message ||
-          err.message ||
-          "Something went wrong. Please try again.",
-      );
+        err.message ||
+        "Something went wrong. Please try again.";
+      setError(errMsg);
+      showToast("error", "Submission Failed", errMsg);
     } finally {
       setSubmitting(false);
     }

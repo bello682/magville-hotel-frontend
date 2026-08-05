@@ -20,11 +20,15 @@ import {
   FileText,
   MessageSquare,
 } from "lucide-react";
-import { trackReservation } from "../../../store/redux/actions/publicActions";
+import {
+  trackReservation,
+  clearReservationState,
+} from "../../../store/redux/actions/publicActions";
 import { RootState } from "../../../store/store";
 import GuestReceiptModal from "@/components/GuestReceiptModal";
 import { api } from "@/store/services/api";
 import GuestReviewForm from "./GuestReviewForm";
+import { useAdminToast } from "@/app/(admin)/context/ToastContext";
 
 function TrackBookingPage() {
   const dispatch = useDispatch<any>();
@@ -32,6 +36,7 @@ function TrackBookingPage() {
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
   const [hotelSettings, setHotelSettings] = useState<any>(null);
   const [reviewJustSubmitted, setReviewJustSubmitted] = useState(false);
+  const { showToast } = useAdminToast();
 
   const searchParams = useSearchParams();
 
@@ -46,13 +51,6 @@ function TrackBookingPage() {
   const { currentReservation, loading, error } = useSelector(
     (state: RootState) => state.reservation,
   );
-
-  // useEffect(() => {
-  //   fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings/public`)
-  //     .then((res) => res.json())
-  //     .then((data) => setHotelSettings(data?.data?.settings))
-  //     .catch(() => {});
-  // }, []);
 
   useEffect(() => {
     api
@@ -257,6 +255,9 @@ function TrackBookingPage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setReference(e.target.value);
+    if (error) {
+      dispatch(clearReservationState());
+    }
   };
 
   // Safe field lookups

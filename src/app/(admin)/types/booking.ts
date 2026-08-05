@@ -31,6 +31,7 @@ export interface BookingGuest {
   phone: string;
   idType?: string | null;
   idNumber?: string | null;
+  tag?: "NONE" | "VIP" | "REGULAR" | "BLACKLISTED";
 }
 
 export interface Booking {

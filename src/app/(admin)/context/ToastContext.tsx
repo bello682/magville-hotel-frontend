@@ -1,3 +1,63 @@
+// // src/app/(admin)/context/ToastContext.tsx
+// "use client";
+
+// import {
+//   createContext,
+//   useContext,
+//   useState,
+//   useCallback,
+//   ReactNode,
+// } from "react";
+
+// export type ToastType = "success" | "error" | "info" | "warning";
+
+// export interface ToastItem {
+//   id: string;
+//   type: ToastType;
+//   title: string;
+//   description?: string;
+// }
+
+// interface ToastContextValue {
+//   toasts: ToastItem[];
+//   showToast: (type: ToastType, title: string, description?: string) => void;
+//   dismissToast: (id: string) => void;
+// }
+
+// const ToastContext = createContext<ToastContextValue | undefined>(undefined);
+
+// export function AdminToastProvider({ children }: { children: ReactNode }) {
+//   const [toasts, setToasts] = useState<ToastItem[]>([]);
+
+//   const dismissToast = useCallback((id: string) => {
+//     setToasts((prev) => prev.filter((t) => t.id !== id));
+//   }, []);
+
+//   const showToast = useCallback(
+//     (type: ToastType, title: string, description?: string) => {
+//       const id = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+//       setToasts((prev) => [...prev, { id, type, title, description }]);
+
+//       // Auto-dismiss after 5s
+//       setTimeout(() => dismissToast(id), 5000);
+//     },
+//     [dismissToast],
+//   );
+
+//   return (
+//     <ToastContext.Provider value={{ toasts, showToast, dismissToast }}>
+//       {children}
+//     </ToastContext.Provider>
+//   );
+// }
+
+// export function useAdminToast() {
+//   const context = useContext(ToastContext);
+//   if (!context)
+//     throw new Error("useAdminToast must be used within AdminToastProvider");
+//   return context;
+// }
+
 // src/app/(admin)/context/ToastContext.tsx
 "use client";
 
@@ -35,8 +95,18 @@ export function AdminToastProvider({ children }: { children: ReactNode }) {
 
   const showToast = useCallback(
     (type: ToastType, title: string, description?: string) => {
+      const validTypes: ToastType[] = ["success", "error", "info", "warning"];
+
+      // If 'type' is not one of the 4 expected types, automatically normalize it
+      const safeType: ToastType = validTypes.includes(type) ? type : "info";
+      const safeTitle =
+        title || (typeof type === "string" ? type : "Notification");
+
       const id = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-      setToasts((prev) => [...prev, { id, type, title, description }]);
+      setToasts((prev) => [
+        ...prev,
+        { id, type: safeType, title: safeTitle, description },
+      ]);
 
       // Auto-dismiss after 5s
       setTimeout(() => dismissToast(id), 5000);
