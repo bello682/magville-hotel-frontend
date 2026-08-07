@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
+import LockScreenAccessRequest from "./lockScreen";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -33,7 +34,10 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-dark text-main font-sans selection:bg-accent selection:text-dark">
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          {/* <LockScreenAccessRequest /> */}
+        </Providers>
       </body>
     </html>
   );

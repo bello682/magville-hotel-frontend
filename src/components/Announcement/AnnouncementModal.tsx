@@ -30,7 +30,7 @@ export default function AnnouncementModal({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -45,17 +45,17 @@ export default function AnnouncementModal({
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: "spring", stiffness: 260, damping: 22 }}
             style={{ perspective: 1200 }}
-            className="relative w-full max-w-lg bg-gradient-to-b from-[#141414] to-dark border border-accent/20 shadow-[0_25px_80px_-15px_rgba(212,175,55,0.25)] overflow-hidden"
+            className="relative w-full max-w-lg max-h-[90vh] bg-gradient-to-b from-[#141414] to-dark border border-accent/20 shadow-[0_25px_80px_-15px_rgba(212,175,55,0.25)] overflow-y-auto overflow-x-hidden overscroll-contain"
           >
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 z-20 p-2 bg-black/50 backdrop-blur-md rounded-full border border-white/10 text-white/70 hover:text-white hover:scale-105 transition-all"
+              className="fixed sm:absolute top-4 right-4 sm:top-4 sm:right-4 z-20 p-2 bg-black/50 backdrop-blur-md rounded-full border border-white/10 text-white/70 hover:text-white hover:scale-105 transition-all"
             >
               <X className="w-5 h-5" />
             </button>
 
             {announcement.imageUrl && (
-              <div className="relative h-56 overflow-hidden">
+              <div className="relative h-40 sm:h-56 overflow-hidden">
                 <img
                   src={announcement.imageUrl}
                   alt={announcement.title}
@@ -65,7 +65,7 @@ export default function AnnouncementModal({
               </div>
             )}
 
-            <div className="p-8 text-center space-y-4">
+            <div className="p-6 sm:p-8 text-center space-y-4">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-accent/15 border border-accent/30 rounded-full">
                 <Sparkles className="w-3 h-3 text-accent" />
                 <span className="text-[10px] text-accent font-semibold uppercase tracking-[0.25em]">
@@ -73,7 +73,7 @@ export default function AnnouncementModal({
                 </span>
               </div>
 
-              <h2 className="text-2xl md:text-3xl font-serif text-white leading-tight">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-serif text-white leading-tight">
                 {announcement.title}
               </h2>
 
